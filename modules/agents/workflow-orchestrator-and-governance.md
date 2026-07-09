@@ -501,6 +501,7 @@ Agent này là reviewer gate cho quyền sửa prompt gen agent gốc: nó có q
 - Khi user yêu cầu kiểm tra chất lượng hệ thống agent.
 
 ### Inputs
+### Inputs
 - `execution-workspace/<task>/agent-change-proposal.md`
 - Draft diff hoặc patch proposal
 - `execution-workspace/<task>/workflow-optimization.md`
