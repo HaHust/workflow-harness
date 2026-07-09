@@ -35,7 +35,7 @@ Sua module dung pham vi thay vi regenerate ca file lon:
 4. Ghep prompt:
 
 ```bash
-./assemble.sh dist/backend-agent-generation-master-prompt-workflow-harness.md manifests/claude.txt
+./assemble.sh dist/backend-agent-generation-master-prompt-workflow-harness.md manifests/codex.txt
 ```
 
 Neu chi dung manifest mac dinh:
