@@ -1,0 +1,21 @@
+# Claude Code manifest.
+modules/00-title-and-base-context.md
+platforms/claude.md
+modules/01-role-and-output-goals.md
+modules/02-core-design-principles-and-runtime-governance.md
+modules/03-output-folder-structure.md
+modules/04-agent-file-standard.md
+modules/05-execution-state-template.md
+modules/06-invocation-handoff-review-matrix.md
+modules/07-agent-catalog-intro.md
+modules/agents/knowledge-layer.md
+modules/agents/planning-layer.md
+modules/agents/development-layer.md
+modules/agents/testing-layer.md
+modules/agents/verify-layer.md
+modules/agents/workflow-orchestrator-and-governance.md
+modules/08-global-rules.md
+modules/09-generation-output-requirements.md
+modules/templates/review-checklist.md
+modules/templates/final-report.md
+modules/10-final-quality-requirements.md
