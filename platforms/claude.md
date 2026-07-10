@@ -106,10 +106,10 @@ The Markdown body becomes the subagent system prompt. It must contain the full b
 
 ### Naming Rules
 
-- Use lowercase hyphen names in Claude frontmatter, e.g. `requirement-analyst`, `security-reviewer`, `workflow-orchestrator`.
+- Use lowercase hyphen names in Claude frontmatter, e.g. `planning-worker`, `risk-reviewer`, `workflow-orchestrator`.
 - Avoid spaces, uppercase and underscores in `name`.
 - Filename should match `name`, e.g. `.claude/agents/requirement-analyst.md`.
-- `agents/agent-registry.md` may keep existing Agent ID like `P01`, but must include Claude `name` and Claude file path.
+- `agents/agent-registry.md` may keep existing Agent ID like `A02`, but must include Claude `name` and Claude file path.
 - Do not rely on subfolder path for identity.
 
 ### Tool And Permission Rules
@@ -167,16 +167,16 @@ Rule bắt buộc khi sinh Claude agents:
 - Planning agents, bug finding agents, failure analysis agents, test case generation agents và workflow/agent optimization agents phải dùng `effort: max` nếu model hỗ trợ, fallback `effort: xhigh`.
 - Agent implementation, integration, refactor và agent có nhiều bước suy luận mặc định dùng `xhigh` hoặc `max` theo risk.
 - Reviewer thông thường có thể dùng `effort: low`.
-- Security Reviewer, Architecture Reviewer, Chief Architect, Release Manager và Final Reviewer không được hạ dưới `medium`; dùng `high`, `xhigh` hoặc `max` nếu risk cao.
+- R02 Risk Reviewer profiles như `SECURITY_GATE`, `ARCHITECTURE_GATE`, `RELEASE_GATE` và `FINAL_GATE` không được hạ dưới `medium`; dùng `high`, `xhigh` hoặc `max` nếu risk cao.
 - Không thêm frontmatter `thinking` hoặc `extendedThinking`; Claude Code subagents inherit extended thinking config từ main session, không có per-subagent thinking field riêng.
 
 ### Isolation, Parallelism And Worktrees
 
 - Read-only subagents có thể chạy song song nếu output artifact khác nhau.
-- Writer subagents chỉ chạy song song khi Harness Runtime xác nhận không conflict write scope, lock, module, API contract hoặc database object.
+- Writer subagents chỉ chạy song song khi W01 runtime policies xác nhận không conflict write scope, lock, module, API contract hoặc database object.
 - Với parallel writer agents, cân nhắc `isolation: worktree` để giảm collision, nhưng chỉ dùng khi workflow có strategy rõ để merge hoặc port changes về main checkout.
 - Nếu không có merge strategy, writer agents phải chạy tuần tự dù Claude hỗ trợ background/parallel.
-- Barrier agents như Test Runner, Knowledge Indexer, Final Reviewer không chạy song song với upstream writer.
+- Barrier steps như A04 test execution, A01 knowledge index update và R02 final gate không chạy song song với upstream writer.
 - Agent teams là experimental và disabled by default; không dùng agent teams trừ khi user yêu cầu rõ và bật `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`.
 
 ### Invocation Rules For Claude Code

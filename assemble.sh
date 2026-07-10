@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUT="${1:-$ROOT/dist/backend-agent-generation-master-prompt-workflow-harness.md}"
-MANIFEST="${2:-$ROOT/manifest.txt}"
+MANIFEST="${2:-$ROOT/manifests/codex.txt}"
 
 if [[ "$OUT" != /* ]]; then
   OUT="$ROOT/$OUT"

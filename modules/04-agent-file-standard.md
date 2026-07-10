@@ -1,86 +1,99 @@
-## 5. Chuẩn format cho mỗi file agent
+## 5. V3 Agent And Skill File Standards
 
-Mỗi file agent phải theo format sau:
-Còn tùy vào agent của các nền tảng có các tham số cần thêm.
+### Agent File Format
+
+Every runnable custom agent file must include:
+
 ```md
-# <Agent Name>
+# <ID> <Agent Name>
 
 ## Role
-Mô tả vai trò ngắn gọn của agent.
-
 ## Responsibility
-Agent này chỉ chịu trách nhiệm về một việc duy nhất.
-
 ## When To Run
-Khi nào agent được chạy.
-
 ## Inputs
-Danh sách file, dữ liệu, context agent cần đọc.
-
 ## Outputs
-Danh sách file hoặc artifact agent phải tạo/cập nhật.
-
+## Allowed Skills
 ## Model Config
-- Reasoning Effort: LOW | MEDIUM | HIGH | HIGHEST
-- Temperature: theo nền tảng nếu có
-- Notes:
-
-Planning, bug finding, test case generation, failure analysis và agent optimization nên dùng reasoning effort cao nhất. Review đơn giản có thể dùng low, nhưng security/architecture/release gate nên dùng ít nhất medium.
-
 ## Permissions
-- Read:
-- Write:
-- Execute:
-- Network:
-- Destructive Actions:
-- Secrets:
-- Approval Required:
-
 ## Write Scope
-- Files:
-- Directories:
-- Modules:
-- Database objects:
-- API contracts:
-
 ## Parallel Safety
-- Can Run In Parallel: YES | NO | CONDITIONAL
-- Safe Parallel With:
-- Must Not Run In Parallel With:
-- Required Locks:
-
 ## Process
-Các bước xử lý chi tiết.
-
 ## Rules
-Các luật bắt buộc phải tuân thủ.
-
 ## Do Not
-Các việc agent tuyệt đối không được làm.
-
 ## Handoff
-Agent này bàn giao kết quả cho agent nào.
-
 ## Handoff Contract
-- Required artifact:
-- Required verdict:
-- Next agent:
-- Return path on reject:
-
 ## Review Criteria
-Checklist để reviewer kiểm tra.
-
 ## Debate Policy
-- Join Debate When:
-- Debate Role: PROPOSER | CRITIC | ARBITER | NONE
-- Max Debate Rounds:
-
 ## Failure Handling
-Nếu không đủ dữ liệu hoặc bị lỗi thì xử lý thế nào.
-
 ## Stop Condition
-Khi nào agent phải dừng, ghi blocked report và báo user hoặc orchestrator.
 ```
 
----
+### Worker Handoff Contract
 
+```md
+# Worker Handoff
+
+- Task ID:
+- Stage:
+- From Agent:
+- Logical Handoff To:
+- Iteration:
+- Skills Used:
+- Inputs Read:
+- Outputs Produced:
+- Files Changed:
+- Assumptions Added:
+- Questions Added:
+- Risks Found:
+- Locks Used:
+- Worker Status: READY_FOR_REVIEW | BLOCKED
+- Required Review Profile:
+- Return To: W01 Workflow Orchestrator
+```
+
+### Reviewer Handoff Contract
+
+```md
+# Reviewer Handoff
+
+- Task ID:
+- Stage:
+- Reviewer:
+- Worker/Artifact Reviewed:
+- Review Profile:
+- Artifact Reviewed:
+- Findings:
+- Required Fixes:
+- Downstream Artifacts Invalidated:
+- Verdict: PASS | PASS_WITH_NOTES | REJECT | BLOCKED
+- Return To: W01 Workflow Orchestrator
+- Recommended Next Stage:
+```
+
+### Specialist Routing Handoff Contract
+
+```md
+# Specialist Routing Handoff
+
+- Task ID:
+- Stage:
+- From Agent:
+- Iteration:
+- Skills Used:
+- Inputs Read:
+- Failure Evidence Reviewed:
+- Root Cause Owner:
+- Confidence:
+- Routing Recommendation:
+- Required Fixes:
+- Assumptions Added:
+- Questions Added:
+- Risks Found:
+- Locks Used:
+- Routing Status: ROUTE_FOUND | NEEDS_USER_DECISION | BLOCKED
+- Return To: W01 Workflow Orchestrator
+```
+
+### Skill File Format
+
+Every skill file must include purpose, allowed agents, trigger, preconditions, inputs, procedure, outputs, permission requirement, write impact, validation, failure codes, and review mapping.

@@ -1,8 +1,19 @@
-# 7. Agent details
+# 7. V3 Agent Catalog
 
-Hãy sinh chi tiết các agent dưới đây.
+Generate only the runnable custom agents in the V3 registry. Do not regenerate the old K/P/D/T/V specialist-agent mesh.
 
-Quan trọng: Các mô tả dưới đây là yêu cầu nghiệp vụ tối thiểu cho từng agent. Khi sinh file agent cuối cùng, mọi agent phải được mở rộng đầy đủ theo format ở mục 5, bao gồm `Permissions`, `Write Scope`, `Parallel Safety`, `Handoff`, `Handoff Contract`, `Review Criteria`, `Debate Policy`, `Failure Handling` và `Stop Condition`. Không được chỉ copy phần mô tả ngắn bên dưới.
+Custom agents:
 
----
+- W01 Workflow Orchestrator
+- A01 Knowledge Maintainer
+- A02 Planning Worker
+- A03 Implementation Worker
+- A04 Test Worker
+- A05 Verification Worker
+- R01 Quality Reviewer
+- R02 Risk Reviewer
+- F01 Failure Analyzer
+- M01 Workflow Optimizer, optional maintenance
+- M02 Agent Evolution Reviewer, optional maintenance
 
+The detailed layer sections below define responsibilities and allowed skill families. Skills are documented under `skills/` and policies under `workflow/`.

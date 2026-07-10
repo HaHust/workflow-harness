@@ -1,18 +1,16 @@
-# XI. Yêu cầu chất lượng cuối cùng
+# XI. Final Quality Requirements
 
-Kết quả sinh ra phải đủ chi tiết để một backend engineer có thể:
+The generated V3 system must prove:
 
-- Copy từng file agent vào project
-- Dùng Workflow Orchestrator cho task mới
-- Duy trì knowledge codebase lâu dài
-- Bảo đảm mỗi feature có execution workspace riêng
-- Review được từng bước phát triển
-- Trace được quyết định từ requirement đến code, test và release
-- Chứng minh mọi agent đều có caller, handoff, reviewer/gate và stop condition
-- Điều phối subagents qua Workflow Harness Runtime
-- Chạy song song an toàn bằng lock và write scope
-- Chạy debate/feedback loop có giới hạn vòng
-- Dừng và báo user khi không thể tự giải quyết
-- Tối ưu hệ thống agent dựa trên workflow logs/history mà không nới lỏng quyền
-
-Không được trả lời chung chung. Không được chỉ liệt kê tên agent. Phải sinh mô tả có thể dùng trực tiếp.
+- Only W01 can dispatch agents or move stages.
+- Every worker returns to a reviewer before W01 accepts the stage output.
+- Every reviewer returns only to W01.
+- A01 is a bootstrap/sync/update worker, not a mandatory stage for every task.
+- Knowledge context is loaded through `knowledge-context.md` to avoid reading all knowledge files by default.
+- Knowledge is updated after stable implementation and tests, before final gate, when impact requires it.
+- All custom agents have caller, trigger, allowed skills, handoff, reviewer/gate, permission, write scope, and stop condition.
+- Skills are reusable procedures and are not dispatch targets.
+- Policies are coordination rules and are not agents.
+- Repair, failure, debate, restart, and maintenance loops have explicit budgets.
+- Shared state has a single writer: W01.
+- Codex `max_depth = 1` is respected.

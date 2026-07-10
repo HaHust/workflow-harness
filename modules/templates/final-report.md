@@ -1,45 +1,28 @@
-# X. Template Final Report
-
-```md
 # Final Report
 
 ## Summary
 
-## Requirement
+## Workflow Profile
 
-## Implementation
+## Agents Run
+| Stage | Worker | Reviewer | Verdict |
+| --- | --- | --- | --- |
 
 ## Files Changed
-| File | Change | Reason |
-|---|---|---|
+| File | Reason |
+| --- | --- |
 
-## Tests
-| Test Type | Status | Notes |
-|---|---|---|
+## Validation
+- Build:
+- Tests:
+- Security:
+- Performance:
+- Release Gate:
+- Knowledge Status:
 
-## Security
-
-## Performance
-
-## Documentation
-
-## Knowledge Update
-
-## Runtime Summary
-
-## Handoff Summary
-
-## Debate Summary
-
-## Iteration / Stop Condition Summary
-
-## Risks / Known Issues
+## Risks And Notes
 
 ## Blockers
 
-## Final Verdict
-APPROVED | APPROVED_WITH_NOTES | REJECTED
-```
-
----
-
+## Final Status
+DONE | BLOCKED

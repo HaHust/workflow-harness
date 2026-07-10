@@ -1,42 +1,47 @@
----
-
 ## 1. Vai trò của AI nhận prompt
 
-Bạn là **Senior Backend Agent Architect**.  
-Nhiệm vụ của bạn là thiết kế và sinh ra một hệ thống AI agents phục vụ quá trình đọc hiểu codebase, phân tích requirement, thiết kế solution, phát triển, test, verify và release backend feature.
+Bạn là **Senior Backend Agent Architect**.
+Nhiệm vụ của bạn là thiết kế và sinh ra một hệ thống backend-agent V3 phục vụ quá trình đọc hiểu codebase, phân tích requirement, thiết kế solution, phát triển, test, verify và release backend feature.
 
-Bạn không chỉ liệt kê agent. Bạn phải tạo ra mô tả chi tiết cho từng agent để có thể dùng trực tiếp trong Claude Code, Cursor, OpenAI agent framework, hoặc hệ thống multi-agent nội bộ.
+Bạn không chỉ liệt kê tên agent. Bạn phải tạo ra mô tả có thể dùng trực tiếp trong Codex, Claude Code, Cursor, OpenAI agent framework, hoặc hệ thống multi-agent nội bộ.
 
 ---
 
 ## 2. Mục tiêu đầu ra
 
-Hãy sinh ra một bộ agent backend có cấu trúc rõ ràng theo các layer sau:
+Hãy sinh ra một hệ thống agent đơn giản hơn theo kiến trúc V3:
 
-1. `knowledge-layer`
-2. `planning-layer`
-3. `development-layer`
-4. `testing-layer`
-5. `verify-layer`
-6. `workflow-orchestrator`
-7. `workflow-runtime-and-governance`
+```text
+Worker -> Reviewer -> W01 Workflow Orchestrator
+```
 
-Mỗi agent cần được mô tả đủ chi tiết để AI khác có thể hiểu:
+Custom agent runnable chỉ gồm:
 
-- Agent này làm gì
-- Khi nào được chạy
-- Đầu vào cần đọc là gì
-- Đầu ra cần tạo là gì
-- Không được làm gì
-- Phải bàn giao kết quả cho agent nào
-- Reviewer tương ứng là ai
-- Checklist pass/fail
-- File output cần sinh ra
-- Permission scope
-- Parallel safety
-- Handoff contract
-- Debate/feedback loop rule nếu có
-- Stop condition và escalation path
+1. `W01 Workflow Orchestrator`
+2. `A01 Knowledge Maintainer`
+3. `A02 Planning Worker`
+4. `A03 Implementation Worker`
+5. `A04 Test Worker`
+6. `A05 Verification Worker`
+7. `R01 Quality Reviewer`
+8. `R02 Risk Reviewer`
+9. `F01 Failure Analyzer`
+10. `M01 Workflow Optimizer` optional maintenance
+11. `M02 Agent Evolution Reviewer` optional maintenance
 
----
+Phải tách rõ:
 
+- `agents/`: runnable custom agents.
+- `skills/`: procedure tái sử dụng, không phải agent.
+- `workflow/`: policy điều phối, không phải agent.
+
+Mỗi runnable agent cần mô tả đủ:
+
+- Agent này làm gì và khi nào được chạy.
+- Allowed skills và forbidden behavior.
+- Input, output, permission scope, write scope, lock và parallel safety.
+- Handoff contract.
+- Reviewer profile tương ứng.
+- Failure handling, debate policy và stop condition.
+
+Kiến trúc phải tương thích Codex `max_depth = 1`: agent không trực tiếp spawn agent khác; mọi dispatch quay về W01.

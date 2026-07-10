@@ -1,25 +1,15 @@
-# VIII. Output yêu cầu khi AI sinh agent
+# VIII. Output Requirements For V3 Generation
 
-Khi nhận prompt này, hãy tạo ra:
+When this prompt is used to generate the workflow harness, output:
 
-1. Danh sách agent đầy đủ theo folder structure.
-2. Nội dung chi tiết cho từng file agent.
-3. File `agents/agent-registry.md` để chứng minh mọi agent đều có caller, trigger, handoff, reviewer và stop condition.
-4. File `workflow-orchestrator.md` mô tả workflow end-to-end.
-5. File `harness-runtime.md` mô tả state machine, dispatch, lock, permission và artifact validation.
-6. File `workflow-policy.md`.
-7. File `parallel-execution-policy.md`.
-8. File `debate-loop-policy.md`.
-9. File `stop-condition-policy.md`.
-10. File `workflow-history-optimizer.md`.
-11. File `agent-evolution-reviewer.md`.
-12. Template `execution-state.md`.
-13. Template `handoff-log.md`.
-14. Template debate output files.
-15. Template blocked report.
-16. Template review checklist dùng chung.
-17. Template final report.
-18. Hướng dẫn cách chạy workflow cho task mới.
+1. The V3 agent files under `agents/`.
+2. `agents/agent-registry.md` containing only runnable custom agents.
+3. `skills/skill-registry.md` and skill files using the standard skill contract.
+4. `workflow/stage-policies/*.md`.
+5. `workflow/runtime-policies/*.md`.
+6. `.codex/config.toml` with `max_depth = 1` and V3 custom agent TOML files.
+7. Task templates under `templates/` and `execution-workspace/_template/`.
+8. README instructions for the flat Worker -> Reviewer -> W01 runtime.
+9. Assembled prompt under `dist/` using the Codex manifest.
 
----
-
+Do not output old sub-orchestrators as custom agents.

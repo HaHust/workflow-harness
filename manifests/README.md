@@ -1,10 +1,10 @@
 # Manifests
 
-Dung thu muc nay cho cac manifest theo tung nen tang, vi du:
+- `codex.txt`: assembles the V3 Codex prompt.
+- `claude.txt`: assembles the same V3 shared prompt with the Claude adapter.
 
-- `codex.txt`
-- `claude.txt`
-- `cursor.txt`
-- `openai-agents.txt`
+Run:
 
-Manifest mac dinh o `../manifest.txt` dang target Codex. Moi manifest nen copy tu file do roi chi thay dong adapter trong `platforms/`.
+```bash
+./assemble.sh dist/backend-agent-generation-master-prompt-workflow-harness.md manifests/codex.txt
+```
