@@ -24,20 +24,43 @@ W01 must create `runs/<run-id>/skill-bundle.md` for every agent run:
 ```md
 # Skill Bundle
 
-## Worker
+## Bundle Identity
+- Bundle Version: 2
+- Workflow Home:
+- Skill Registry:
+- Task ID:
+- Run ID:
+- Stage:
+- Host Agent ID:
+
+## Skill Load Protocol
+- Resolve each selected skill to a concrete file.
+- Required skill files are read before task work.
+- Missing load evidence returns BLOCKED.
 
 ## Required Skills
+| Load Order | Skill | Skill File | Expected Output |
 
-## Optional Skills
+## Selected Optional Skills
+| Load Order | Skill | Skill File | Trigger | Expected Output |
 
 ## Forbidden Skills
+| Skill | Reason |
+
+## Required Inputs
 
 ## Expected Outputs
 
-## Reviewer
+## Write Scope And Locks
 
-## Review Profile
+## Reviewer Contract
+
+## Skill Load Evidence
 ```
+
+W01 must validate each skill against `skills/skill-registry.md`, write its concrete path into the bundle, and include the same bundle path in the child run request. The child must read all required skill files in load order and record `Skill Files Read`; a list of skill names alone is not a loaded bundle.
+
+When `scripts/validate-skill-bundle.sh` is available, W01 runs it before dispatch and proceeds only after `SKILL_BUNDLE_VALID`. Missing files, non-canonical paths, forbidden/selected overlap, or invalid registry mappings block dispatch.
 
 ## Shared State Writer Rule
 

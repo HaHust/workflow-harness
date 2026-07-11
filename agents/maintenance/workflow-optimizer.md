@@ -10,6 +10,8 @@ Analyze workflow history and propose improvements to agents, skills, registry, o
 Run only on explicit user request, scheduled maintenance, postmortem, repeated workflow failures, or W01 maintenance profile.
 
 ## Inputs
+- skill-bundle.md
+- every concrete required skill file listed in the bundle
 - execution-workspace history
 - runtime logs
 - reviewer-history.md
@@ -30,7 +32,8 @@ Run only on explicit user request, scheduled maintenance, postmortem, repeated w
 - workflow-profile-selection
 
 ## Model Config
-- Reasoning Effort: XHIGH
+- Model: `gpt-5.6-luna`
+- Reasoning Effort: LOW
 - Temperature: inherit from the active platform/session unless W01 specifies otherwise.
 - Notes: Keep the context narrow and evidence-backed.
 
@@ -57,14 +60,17 @@ Run only on explicit user request, scheduled maintenance, postmortem, repeated w
 - Required Locks: declared in skill-bundle.md and runtime lock policy.
 
 ## Process
-1. Identify repeated bottlenecks and rejected routes from evidence.
-2. Propose the smallest policy, skill, or agent update that resolves the issue.
-3. List compatibility and prompt sync impact.
-4. Send proposal to M02 for review.
+1. Read the skill bundle, skill registry, and every required skill file in load order; record `Skill Files Read`.
+2. Return `BLOCKED` with `SKILL_NOT_LOADED` if a required skill cannot be loaded.
+3. Identify repeated bottlenecks and rejected routes from evidence.
+4. Propose the smallest policy, skill, or agent update that resolves the issue.
+5. List compatibility and prompt sync impact.
+6. Send proposal to M02 for review.
 
 ## Rules
 - Follow the flat runtime rule: Worker -> Reviewer -> W01. Agents do not spawn agents directly.
 - Use only skills listed in the W01 skill-bundle.md for this run.
+- A skill is usable only after its concrete file has been read; include skill load evidence in result and handoff artifacts.
 - Do not invent business rules; record assumptions and questions in task artifacts.
 - Respect locks, write scope, permission scope, and max iteration budgets.
 - Return BLOCKED instead of broadening scope without W01 approval.
@@ -86,6 +92,10 @@ Logical Handoff To: M02 Agent Evolution Reviewer.
 - Logical Handoff To: M02 Agent Evolution Reviewer.
 - Iteration:
 - Skills Used:
+- Skill Bundle:
+- Skill Registry Read:
+- Skill Files Read:
+- Skill Load Status: PASS | BLOCKED
 - Inputs Read:
 - Outputs Produced:
 - Files Changed:

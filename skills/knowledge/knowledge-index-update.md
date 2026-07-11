@@ -1,59 +1,50 @@
 # Knowledge Index Update
 
 ## Purpose
-Run the `knowledge-index-update` procedure inside the permission and context of the calling agent.
+Publish a navigable index and manifest for all knowledge artifacts after discovery/update skills finish.
 
 ## Allowed Agents
-A01 Knowledge Maintainer
+A01 Knowledge Maintainer.
 
 ## Trigger
-W01 includes this skill in `execution-workspace/<task>/runs/<run-id>/skill-bundle.md`.
+Final required skill of every knowledge bootstrap or incremental update bundle.
 
 ## Preconditions
-- The host agent has an active W01-approved skill bundle.
-- Required input artifacts exist or the host agent returns `BLOCKED`.
-- The skill runs inside the host agent permission scope and cannot expand it.
+- The version 2 bundle lists this file last.
+- All preceding required knowledge skills completed or returned explicit blockers.
 
 ## Inputs
-- User requirement or reviewer request when relevant.
-- `execution-workspace/<task>/knowledge-context.md` when knowledge is needed.
-- Artifacts and source files named in the skill bundle.
-- Existing knowledge files referenced by the skill bundle.
+- All affected files under `knowledge/`.
+- Skill load evidence, source revision/fingerprint, changed file list, and prior manifest/index.
+
+## Must Analyze
+- Knowledge file ownership, purpose, summary, related modules, freshness, dirty/clean state, source references, and dependencies between knowledge files.
 
 ## Procedure
-1. Confirm this skill is present in the skill bundle and not listed as forbidden.
-2. Read only the inputs needed for this procedure.
-3. Produce the required section or artifact with source evidence.
-4. Record assumptions, questions, risks, and changed files for the host agent handoff.
-5. Stop with a failure code instead of exceeding permission or scope.
+1. Confirm this skill was loaded last and record it in `Skill Files Read`.
+2. Inventory every published knowledge artifact and validate required sections.
+3. Update `knowledge-index.md` with read order and task/module routing.
+4. Update `knowledge-manifest.md` with source revision/fingerprint, timestamps, owners, changed files, dirty flags, and `READY_FOR_REVIEW` status.
+5. Never mark `CLEAN` before R01 `KNOWLEDGE_QUALITY` accepts the update.
 
 ## Outputs
-- The section or artifact requested by W01 in the skill bundle.
-- Evidence links or file references sufficient for reviewer validation.
-- Failure code and blocker details when the procedure cannot complete.
+- `knowledge/knowledge-index.md`.
+- `knowledge/knowledge-manifest.md`.
 
 ## Permission Requirement
-- Read: inherited from host agent.
-- Write: inherited from host agent and limited to declared outputs.
-- Execute: inherited from host agent; no independent execution authority.
-- Network: NO unless W01 explicitly authorizes it.
+Read knowledge/run evidence; write index, manifest, and run artifacts only; no network.
 
 ## Write Impact
-Knowledge: YES; Product Code: NO; Test Code: NO; Documentation: NO unless knowledge docs
+Knowledge: YES; Product/Test Code: NO.
 
 ## Validation
-- Output matches the skill bundle.
-- Evidence is specific enough for review.
-- No forbidden skill, file, or permission was used.
-- Handoff data is complete.
+- Every knowledge file is indexed exactly once.
+- Revision/fingerprint and freshness fields are populated.
+- Dirty items and missing evidence are explicit.
+- Status before review is `READY_FOR_REVIEW`.
 
 ## Failure Codes
-- `MISSING_INPUT`
-- `INSUFFICIENT_EVIDENCE`
-- `PERMISSION_DENIED`
-- `CONFLICTING_RULE`
-- `UNSAFE_CHANGE`
-- `EXECUTION_FAILED`
+`SKILL_NOT_LOADED`, `MISSING_INPUT`, `INCOMPLETE_KNOWLEDGE`, `INSUFFICIENT_EVIDENCE`, `CONFLICTING_RULE`, `PERMISSION_DENIED`.
 
 ## Review Mapping
-R01 KNOWLEDGE_QUALITY
+R01 `KNOWLEDGE_QUALITY`.

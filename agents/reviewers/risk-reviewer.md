@@ -11,6 +11,9 @@ Run when W01 marks a high-risk gate, when A05 completes verification, when archi
 
 ## Inputs
 - Reviewer request from W01
+- skill-bundle.md
+- skills/skill-registry.md resolved from Workflow Home
+- every concrete required review skill file listed in the bundle
 - risk profile
 - worker artifact or proposal set
 - code diff
@@ -35,7 +38,8 @@ Run when W01 marks a high-risk gate, when A05 completes verification, when archi
 - risk-classification
 
 ## Model Config
-- Reasoning Effort: HIGH
+- Model: `gpt-5.6-luna`
+- Reasoning Effort: LOW
 - Temperature: inherit from the active platform/session unless W01 specifies otherwise.
 - Notes: Keep the context narrow and evidence-backed.
 
@@ -55,6 +59,11 @@ Run when W01 marks a high-risk gate, when A05 completes verification, when archi
 - Database objects: only if W01 assigned migration skill and R02 gate is required.
 - API contracts: only if W01 assigned API contract skill and compatibility gate is required.
 
+## Database Execution Guardrail
+- Migration and database risk gates are static/read-only reviews. Do not execute migrations, rollback commands, or commands whose direct or indirect database effect includes `ALTER`, `DROP`, `TRUNCATE`, `DELETE`, or `INSERT`.
+- Treat raw SQL, DB clients, scripts/wrappers, framework/ORM CLIs, schema push/sync, seeders, application startup, and tests as prohibited when mutation may occur.
+- Record `NOT_EXECUTED_POLICY`; return `BLOCKED` with `DB_MUTATION_EXECUTION_FORBIDDEN` when a gate requires runtime mutation evidence.
+
 ## Parallel Safety
 - Can Run In Parallel: YES
 - Safe Parallel With: agents whose input/output/write locks do not overlap, after W01 runtime policy validation.
@@ -62,14 +71,17 @@ Run when W01 marks a high-risk gate, when A05 completes verification, when archi
 - Required Locks: declared in skill-bundle.md and runtime lock policy.
 
 ## Process
-1. Validate that W01 supplied an approved risk profile.
-2. Check the artifact against profile-specific safety, compatibility, release, and evidence requirements.
-3. For proposal comparison, rank options and record tradeoffs without making stage transitions.
-4. Return a verdict to W01 with required fixes or final PASS.
+1. Read the skill bundle, skill registry, and every required review skill file in load order; record `Skill Files Read`.
+2. Return `BLOCKED` with `SKILL_NOT_LOADED` if a required review skill cannot be loaded.
+3. Validate that W01 supplied an approved risk profile.
+4. Check the artifact against profile-specific safety, compatibility, release, and evidence requirements.
+5. For proposal comparison, rank options and record tradeoffs without making stage transitions.
+6. Return a verdict to W01 with required fixes or final PASS.
 
 ## Rules
 - Follow the flat runtime rule: Worker -> Reviewer -> W01. Agents do not spawn agents directly.
 - Use only skills listed in the W01 skill-bundle.md for this run.
+- A review skill is usable only after its concrete file has been read; include skill load evidence in review and handoff artifacts.
 - Do not invent business rules; record assumptions and questions in task artifacts.
 - Respect locks, write scope, permission scope, and max iteration budgets.
 - Return BLOCKED instead of broadening scope without W01 approval.
@@ -90,6 +102,10 @@ Return To: W01 Workflow Orchestrator only. May recommend routing to a stage but 
 - Reviewer: R02 Risk Reviewer
 - Worker/Artifact Reviewed:
 - Review Profile:
+- Skill Bundle:
+- Skill Registry Read:
+- Skill Files Read:
+- Skill Load Status: PASS | BLOCKED
 - Artifact Reviewed:
 - Findings:
 - Required Fixes:

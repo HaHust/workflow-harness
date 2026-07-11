@@ -12,6 +12,8 @@ Run after planning package passes required review gates, or when W01 routes a co
 ## Inputs
 - planning-package/*
 - skill-bundle.md
+- skills/skill-registry.md resolved from Workflow Home
+- every concrete required skill file listed in the bundle
 - knowledge-context.md
 - referenced knowledge files
 - current source and tests in assigned write scope
@@ -38,7 +40,8 @@ Run after planning package passes required review gates, or when W01 routes a co
 - documentation-update
 
 ## Model Config
-- Reasoning Effort: XHIGH
+- Model: `gpt-5.6-luna`
+- Reasoning Effort: LOW
 - Temperature: inherit from the active platform/session unless W01 specifies otherwise.
 - Notes: Keep the context narrow and evidence-backed.
 
@@ -58,6 +61,11 @@ Run after planning package passes required review gates, or when W01 routes a co
 - Database objects: only if W01 assigned migration skill and R02 gate is required.
 - API contracts: only if W01 assigned API contract skill and compatibility gate is required.
 
+## Database Execution Guardrail
+- You may create or edit migration, schema, model, repository, and SQL files inside the assigned scope, but must not execute migrations or commands whose direct or indirect database effect includes `ALTER`, `DROP`, `TRUNCATE`, `DELETE`, or `INSERT`.
+- The ban covers raw SQL, DB clients, scripts/wrappers, framework/ORM CLIs, schema push/sync, seeders, application startup, and tests. Inspect commands for auto-migration or seed side effects; if read-only behavior cannot be proven, do not run them.
+- Record `NOT_EXECUTED_POLICY` in the development report. If execution is required to complete or validate the task, return `BLOCKED` with `DB_MUTATION_EXECUTION_FORBIDDEN`; W01 approval does not override this rule.
+
 ## Parallel Safety
 - Can Run In Parallel: CONDITIONAL
 - Safe Parallel With: agents whose input/output/write locks do not overlap, after W01 runtime policy validation.
@@ -65,15 +73,18 @@ Run after planning package passes required review gates, or when W01 routes a co
 - Required Locks: declared in skill-bundle.md and runtime lock policy.
 
 ## Process
-1. Read planning package, skill-bundle.md, and relevant knowledge.
-2. Validate assigned locks and forbidden skills before editing.
-3. Implement the smallest coherent change.
-4. Do not broaden scope without W01 updating the skill bundle.
-5. Record files changed, behavior changed, compatibility checks, and follow-up tests needed.
+1. Read the skill bundle, skill registry, and every required skill file in load order; record `Skill Files Read`.
+2. Return `BLOCKED` with `SKILL_NOT_LOADED` if a required skill cannot be loaded.
+3. Read the planning package and relevant knowledge.
+4. Validate assigned locks and forbidden skills before editing.
+5. Implement the smallest coherent change.
+6. Do not broaden scope without W01 updating the skill bundle.
+7. Record files changed, behavior changed, compatibility checks, and follow-up tests needed.
 
 ## Rules
 - Follow the flat runtime rule: Worker -> Reviewer -> W01. Agents do not spawn agents directly.
 - Use only skills listed in the W01 skill-bundle.md for this run.
+- A skill is usable only after its concrete file has been read; include skill load evidence in result and handoff artifacts.
 - Do not invent business rules; record assumptions and questions in task artifacts.
 - Respect locks, write scope, permission scope, and max iteration budgets.
 - Return BLOCKED instead of broadening scope without W01 approval.
@@ -95,6 +106,10 @@ Logical Handoff To: R01 Quality Reviewer for CODE_CORRECTNESS, plus R02 when W01
 - Logical Handoff To: R01 Quality Reviewer for CODE_CORRECTNESS, plus R02 when W01 requested risk gate.
 - Iteration:
 - Skills Used:
+- Skill Bundle:
+- Skill Registry Read:
+- Skill Files Read:
+- Skill Load Status: PASS | BLOCKED
 - Inputs Read:
 - Outputs Produced:
 - Files Changed:

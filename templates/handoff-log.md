@@ -8,6 +8,10 @@
 - Logical Handoff To:
 - Iteration:
 - Skills Used:
+- Skill Bundle:
+- Skill Registry Read:
+- Skill Files Read:
+- Skill Load Status: PASS | BLOCKED
 - Inputs Read:
 - Outputs Produced:
 - Files Changed:
@@ -26,6 +30,10 @@
 - Reviewer:
 - Worker/Artifact Reviewed:
 - Review Profile:
+- Skill Bundle:
+- Skill Registry Read:
+- Skill Files Read:
+- Skill Load Status: PASS | BLOCKED
 - Artifact Reviewed:
 - Findings:
 - Required Fixes:
@@ -41,6 +49,10 @@
 - From Agent:
 - Iteration:
 - Skills Used:
+- Skill Bundle:
+- Skill Registry Read:
+- Skill Files Read:
+- Skill Load Status: PASS | BLOCKED
 - Inputs Read:
 - Failure Evidence Reviewed:
 - Root Cause Owner:

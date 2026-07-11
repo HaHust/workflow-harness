@@ -16,6 +16,7 @@ Every runnable custom agent file must include:
 ## Model Config
 ## Permissions
 ## Write Scope
+## Database Execution Guardrail (required for database-related agents)
 ## Parallel Safety
 ## Process
 ## Rules
@@ -27,6 +28,8 @@ Every runnable custom agent file must include:
 ## Failure Handling
 ## Stop Condition
 ```
+
+For every database-related agent, `Database Execution Guardrail` must explicitly allow static design/edit/review work while forbidding execution of migrations and direct or indirect `ALTER`, `DROP`, `TRUNCATE`, `DELETE`, or `INSERT` effects. Required policy outcomes are `NOT_EXECUTED_POLICY` and `BLOCKED: DB_MUTATION_EXECUTION_FORBIDDEN` when execution is necessary.
 
 ### Source Of Truth Boundary
 
@@ -103,3 +106,11 @@ Every runnable custom agent file must include:
 ### Skill File Format
 
 Every skill file must include purpose, allowed agents, trigger, preconditions, inputs, procedure, outputs, permission requirement, write impact, validation, failure codes, and review mapping.
+
+Every run-time skill selection must also satisfy the skill-load contract:
+
+- W01 resolves the canonical skill file through `skills/skill-registry.md`.
+- The version 2 bundle contains concrete skill file, load order, expected output, and host agent.
+- The child reads required skill files before task work.
+- Result/handoff/review records `Skill Files Read` and `Skill Load Status`.
+- Missing or unreadable required skill returns `BLOCKED` with `SKILL_NOT_LOADED`.

@@ -1,59 +1,47 @@
-# Api Discovery
+# API Discovery
 
 ## Purpose
-Run the `api-discovery` procedure inside the permission and context of the calling agent.
+Build a complete index of application and integration endpoints.
 
 ## Allowed Agents
-A01 Knowledge Maintainer
+A01 Knowledge Maintainer.
 
 ## Trigger
-W01 includes this skill in `execution-workspace/<task>/runs/<run-id>/skill-bundle.md`.
+Bootstrap, API/integration changes, or refresh of affected modules.
 
 ## Preconditions
-- The host agent has an active W01-approved skill bundle.
-- Required input artifacts exist or the host agent returns `BLOCKED`.
-- The skill runs inside the host agent permission scope and cannot expand it.
+The version 2 bundle lists this file and endpoint/integration search scope.
 
 ## Inputs
-- User requirement or reviewer request when relevant.
-- `execution-workspace/<task>/knowledge-context.md` when knowledge is needed.
-- Artifacts and source files named in the skill bundle.
-- Existing knowledge files referenced by the skill bundle.
+- REST, SOAP, gRPC, GraphQL, client, producer, and consumer source.
+- DTOs, validators, auth/permission code, tests, and API specifications when present.
+- Existing `knowledge/api-index.md`.
+
+## Must Analyze
+- Method/path or protocol identity, controller/client/consumer, request/response, validation, authentication/authorization, related service, versioning, and compatibility notes.
 
 ## Procedure
-1. Confirm this skill is present in the skill bundle and not listed as forbidden.
-2. Read only the inputs needed for this procedure.
-3. Produce the required section or artifact with source evidence.
-4. Record assumptions, questions, risks, and changed files for the host agent handoff.
-5. Stop with a failure code instead of exceeding permission or scope.
+1. Confirm skill load and record this file.
+2. Inventory inbound and outbound endpoints and message interfaces.
+3. Trace DTOs, validation, permissions, handlers, and downstream services.
+4. Record undocumented or inconsistent contracts as risks.
 
 ## Outputs
-- The section or artifact requested by W01 in the skill bundle.
-- Evidence links or file references sufficient for reviewer validation.
-- Failure code and blocker details when the procedure cannot complete.
+- `knowledge/api-index.md` with method/path or protocol, owner, request, response, validation, auth, service mapping, compatibility notes, source references, and freshness metadata.
 
 ## Permission Requirement
-- Read: inherited from host agent.
-- Write: inherited from host agent and limited to declared outputs.
-- Execute: inherited from host agent; no independent execution authority.
-- Network: NO unless W01 explicitly authorizes it.
+Read source/tests/specs/knowledge; write knowledge/run artifacts only; no network.
 
 ## Write Impact
-Knowledge: YES; Product Code: NO; Test Code: NO; Documentation: NO unless knowledge docs
+Knowledge: YES; Product/Test Code: NO.
 
 ## Validation
-- Output matches the skill bundle.
-- Evidence is specific enough for review.
-- No forbidden skill, file, or permission was used.
-- Handoff data is complete.
+- Every discovered endpoint has a concrete source location.
+- Inbound, outbound, and messaging endpoints are distinguished.
+- Auth and validation are explicit or marked absent/unknown.
 
 ## Failure Codes
-- `MISSING_INPUT`
-- `INSUFFICIENT_EVIDENCE`
-- `PERMISSION_DENIED`
-- `CONFLICTING_RULE`
-- `UNSAFE_CHANGE`
-- `EXECUTION_FAILED`
+`SKILL_NOT_LOADED`, `MISSING_INPUT`, `INSUFFICIENT_EVIDENCE`, `PERMISSION_DENIED`.
 
 ## Review Mapping
-R01 KNOWLEDGE_QUALITY
+R01 `KNOWLEDGE_QUALITY`; R02 `API_COMPATIBILITY_GATE` when material contracts changed.

@@ -10,6 +10,9 @@ Verify security, performance, architecture, documentation, release readiness, ro
 Run after testing review passes. Run again after W01 routes fixes through implementation or knowledge maintenance.
 
 ## Inputs
+- execution-workspace/<task>/runs/<run-id>/skill-bundle.md
+- skills/skill-registry.md resolved from Workflow Home
+- every concrete required skill file listed in the bundle
 - planning-package/*
 - development-report.md
 - test-result.md
@@ -41,7 +44,8 @@ Run after testing review passes. Run again after W01 routes fixes through implem
 - knowledge-impact-detector
 
 ## Model Config
-- Reasoning Effort: HIGH
+- Model: `gpt-5.6-luna`
+- Reasoning Effort: LOW
 - Temperature: inherit from the active platform/session unless W01 specifies otherwise.
 - Notes: Keep the context narrow and evidence-backed.
 
@@ -61,6 +65,11 @@ Run after testing review passes. Run again after W01 routes fixes through implem
 - Database objects: only if W01 assigned migration skill and R02 gate is required.
 - API contracts: only if W01 assigned API contract skill and compatibility gate is required.
 
+## Database Execution Guardrail
+- Migration readiness and database verification are evidence-only. Do not execute migrations or commands whose direct or indirect database effect includes `ALTER`, `DROP`, `TRUNCATE`, `DELETE`, or `INSERT`.
+- The ban covers raw SQL, DB clients, scripts/wrappers, framework/ORM CLIs, schema push/sync, seeders, application startup, tests, and rollback commands. If a command cannot be proven read-only, do not run it.
+- Review migration and rollback artifacts statically, record `NOT_EXECUTED_POLICY`, and return `BLOCKED` with `DB_MUTATION_EXECUTION_FORBIDDEN` if runtime evidence is mandatory.
+
 ## Parallel Safety
 - Can Run In Parallel: CONDITIONAL
 - Safe Parallel With: agents whose input/output/write locks do not overlap, after W01 runtime policy validation.
@@ -68,14 +77,17 @@ Run after testing review passes. Run again after W01 routes fixes through implem
 - Required Locks: declared in skill-bundle.md and runtime lock policy.
 
 ## Process
-1. Verify that acceptance criteria, tests, security, performance, architecture, release, and docs evidence are complete.
-2. Run knowledge-impact-detector after stable implementation and test review.
-3. If code changes are required, report finding and route to W01; do not patch code.
-4. Return READY_FOR_REVIEW or BLOCKED handoff to R02.
+1. Read the skill bundle, skill registry, and every required skill file in load order; record `Skill Files Read`.
+2. Return `BLOCKED` with `SKILL_NOT_LOADED` if a required skill cannot be loaded.
+3. Verify that acceptance criteria, tests, security, performance, architecture, release, and docs evidence are complete.
+4. Run knowledge-impact-detector after stable implementation and test review.
+5. If code changes are required, report finding and route to W01; do not patch code.
+6. Return READY_FOR_REVIEW or BLOCKED handoff to R02.
 
 ## Rules
 - Follow the flat runtime rule: Worker -> Reviewer -> W01. Agents do not spawn agents directly.
 - Use only skills listed in the W01 skill-bundle.md for this run.
+- A skill is usable only after its concrete file has been read; include skill load evidence in result and handoff artifacts.
 - Do not invent business rules; record assumptions and questions in task artifacts.
 - Respect locks, write scope, permission scope, and max iteration budgets.
 - Return BLOCKED instead of broadening scope without W01 approval.
@@ -97,6 +109,10 @@ Logical Handoff To: R02 Risk Reviewer with FINAL_GATE or a specific risk profile
 - Logical Handoff To: R02 Risk Reviewer with FINAL_GATE or a specific risk profile chosen by W01.
 - Iteration:
 - Skills Used:
+- Skill Bundle:
+- Skill Registry Read:
+- Skill Files Read:
+- Skill Load Status: PASS | BLOCKED
 - Inputs Read:
 - Outputs Produced:
 - Files Changed:

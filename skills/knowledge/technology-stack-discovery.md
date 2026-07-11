@@ -1,59 +1,48 @@
 # Technology Stack Discovery
 
 ## Purpose
-Run the `technology-stack-discovery` procedure inside the permission and context of the calling agent.
+Inventory the technical stack and produce the skill matrix that constrains implementation and integration work.
 
 ## Allowed Agents
-A01 Knowledge Maintainer
+A01 Knowledge Maintainer.
 
 ## Trigger
-W01 includes this skill in `execution-workspace/<task>/runs/<run-id>/skill-bundle.md`.
+Bootstrap, dependency/infrastructure changes, or explicit stack refresh.
 
 ## Preconditions
-- The host agent has an active W01-approved skill bundle.
-- Required input artifacts exist or the host agent returns `BLOCKED`.
-- The skill runs inside the host agent permission scope and cannot expand it.
+The version 2 bundle lists this file and build/config/infrastructure scope.
 
 ## Inputs
-- User requirement or reviewer request when relevant.
-- `execution-workspace/<task>/knowledge-context.md` when knowledge is needed.
-- Artifacts and source files named in the skill bundle.
-- Existing knowledge files referenced by the skill bundle.
+- Build descriptors, dependency locks, configuration, source imports, Docker/Kubernetes, CI/CD, and tests.
+- Existing `knowledge/technology-stack.md` and `knowledge/skill-matrix.md`.
+
+## Must Analyze
+- Frameworks, runtime, build and test tooling.
+- Redis, Kafka, relational/NoSQL databases, Elastic, RabbitMQ, Redisson, reporting, schedulers, mapping/codegen, security/auth, containers, orchestration, API documentation, Testcontainers, and load-test tools when present.
 
 ## Procedure
-1. Confirm this skill is present in the skill bundle and not listed as forbidden.
-2. Read only the inputs needed for this procedure.
-3. Produce the required section or artifact with source evidence.
-4. Record assumptions, questions, risks, and changed files for the host agent handoff.
-5. Stop with a failure code instead of exceeding permission or scope.
+1. Confirm skill load and record this file.
+2. Correlate declared dependencies with actual source/config usage.
+3. Record version, location, purpose, operational notes, and confidence.
+4. Mark declared-but-unused and used-but-undeclared technology as risks.
 
 ## Outputs
-- The section or artifact requested by W01 in the skill bundle.
-- Evidence links or file references sufficient for reviewer validation.
-- Failure code and blocker details when the procedure cannot complete.
+- `knowledge/technology-stack.md` with runtime/framework/build/infrastructure details.
+- `knowledge/skill-matrix.md` table: Skill, Used, Location, Purpose, Version, Notes.
 
 ## Permission Requirement
-- Read: inherited from host agent.
-- Write: inherited from host agent and limited to declared outputs.
-- Execute: inherited from host agent; no independent execution authority.
-- Network: NO unless W01 explicitly authorizes it.
+Read build/source/config/tests/knowledge; write knowledge/run artifacts only; no network by default.
 
 ## Write Impact
-Knowledge: YES; Product Code: NO; Test Code: NO; Documentation: NO unless knowledge docs
+Knowledge: YES; Product/Test Code: NO.
 
 ## Validation
-- Output matches the skill bundle.
-- Evidence is specific enough for review.
-- No forbidden skill, file, or permission was used.
-- Handoff data is complete.
+- Usage claims cite both declarations and usage when available.
+- Versions are evidence-backed, not guessed.
+- Integration/infrastructure skills required by development are explicit.
 
 ## Failure Codes
-- `MISSING_INPUT`
-- `INSUFFICIENT_EVIDENCE`
-- `PERMISSION_DENIED`
-- `CONFLICTING_RULE`
-- `UNSAFE_CHANGE`
-- `EXECUTION_FAILED`
+`SKILL_NOT_LOADED`, `MISSING_INPUT`, `INSUFFICIENT_EVIDENCE`, `PERMISSION_DENIED`.
 
 ## Review Mapping
-R01 KNOWLEDGE_QUALITY
+R01 `KNOWLEDGE_QUALITY`.

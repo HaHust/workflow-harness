@@ -1,59 +1,46 @@
 # Database Discovery
 
 ## Purpose
-Run the `database-discovery` procedure inside the permission and context of the calling agent.
+Map database objects, persistence code, migrations, relationships, and data risks.
 
 ## Allowed Agents
-A01 Knowledge Maintainer
+A01 Knowledge Maintainer.
 
 ## Trigger
-W01 includes this skill in `execution-workspace/<task>/runs/<run-id>/skill-bundle.md`.
+Bootstrap, persistence/schema changes, or refresh of affected data areas.
 
 ## Preconditions
-- The host agent has an active W01-approved skill bundle.
-- Required input artifacts exist or the host agent returns `BLOCKED`.
-- The skill runs inside the host agent permission scope and cannot expand it.
+The version 2 bundle lists this file and persistence/migration scope.
 
 ## Inputs
-- User requirement or reviewer request when relevant.
-- `execution-workspace/<task>/knowledge-context.md` when knowledge is needed.
-- Artifacts and source files named in the skill bundle.
-- Existing knowledge files referenced by the skill bundle.
+- Entities/models, repositories/DAOs, queries, schema SQL, Liquibase/Flyway, and persistence tests.
+- Existing `knowledge/database.md`.
+
+## Must Analyze
+- Tables, views, triggers, procedures, functions, entities, repositories, custom queries, indexes, foreign keys, relationships, transactions, and migration history.
 
 ## Procedure
-1. Confirm this skill is present in the skill bundle and not listed as forbidden.
-2. Read only the inputs needed for this procedure.
-3. Produce the required section or artifact with source evidence.
-4. Record assumptions, questions, risks, and changed files for the host agent handoff.
-5. Stop with a failure code instead of exceeding permission or scope.
+1. Confirm skill load and record this file.
+2. Inventory schema and persistence objects from declarations and migrations.
+3. Map entities to tables, important columns, relationships, indexes, and queries.
+4. Identify migration ordering, data consistency, transaction, and performance risks.
 
 ## Outputs
-- The section or artifact requested by W01 in the skill bundle.
-- Evidence links or file references sufficient for reviewer validation.
-- Failure code and blocker details when the procedure cannot complete.
+- `knowledge/database.md` with object inventory, entity-table mapping, columns, relationships, migrations, queries, indexes, risks, source references, and freshness metadata.
 
 ## Permission Requirement
-- Read: inherited from host agent.
-- Write: inherited from host agent and limited to declared outputs.
-- Execute: inherited from host agent; no independent execution authority.
-- Network: NO unless W01 explicitly authorizes it.
+Read source/schema/tests/knowledge; write knowledge/run artifacts only; no database mutation and no network.
 
 ## Write Impact
-Knowledge: YES; Product Code: NO; Test Code: NO; Documentation: NO unless knowledge docs
+Knowledge: YES; Product/Test/Database Objects: NO.
 
 ## Validation
-- Output matches the skill bundle.
-- Evidence is specific enough for review.
-- No forbidden skill, file, or permission was used.
-- Handoff data is complete.
+- Objects and relationships cite declarations or migrations.
+- Migration history and current schema are distinguished.
+- Query/performance risks have evidence.
 
 ## Failure Codes
-- `MISSING_INPUT`
-- `INSUFFICIENT_EVIDENCE`
-- `PERMISSION_DENIED`
-- `CONFLICTING_RULE`
-- `UNSAFE_CHANGE`
-- `EXECUTION_FAILED`
+`SKILL_NOT_LOADED`, `MISSING_INPUT`, `INSUFFICIENT_EVIDENCE`, `PERMISSION_DENIED`, `UNSAFE_CHANGE`.
 
 ## Review Mapping
-R01 KNOWLEDGE_QUALITY
+R01 `KNOWLEDGE_QUALITY`; R02 `MIGRATION_GATE` when material migration knowledge changed.

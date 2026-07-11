@@ -1,59 +1,46 @@
 # Reusable Component Discovery
 
 ## Purpose
-Run the `reusable-component-discovery` procedure inside the permission and context of the calling agent.
+Index components that future work should reuse instead of duplicating.
 
 ## Allowed Agents
-A01 Knowledge Maintainer
+A01 Knowledge Maintainer.
 
 ## Trigger
-W01 includes this skill in `execution-workspace/<task>/runs/<run-id>/skill-bundle.md`.
+Bootstrap, shared-component changes, or refresh of relevant modules.
 
 ## Preconditions
-- The host agent has an active W01-approved skill bundle.
-- Required input artifacts exist or the host agent returns `BLOCKED`.
-- The skill runs inside the host agent permission scope and cannot expand it.
+The version 2 bundle lists this file and shared/component source scope.
 
 ## Inputs
-- User requirement or reviewer request when relevant.
-- `execution-workspace/<task>/knowledge-context.md` when knowledge is needed.
-- Artifacts and source files named in the skill bundle.
-- Existing knowledge files referenced by the skill bundle.
+- Utilities, base classes, shared modules, helpers, templates, abstract services, validators, exceptions, response wrappers, and usage sites.
+- Existing `knowledge/component-index.md`.
+
+## Must Analyze
+- Component name/location, purpose, API or usage pattern, example callers, ownership, limitations, and compatibility risks.
 
 ## Procedure
-1. Confirm this skill is present in the skill bundle and not listed as forbidden.
-2. Read only the inputs needed for this procedure.
-3. Produce the required section or artifact with source evidence.
-4. Record assumptions, questions, risks, and changed files for the host agent handoff.
-5. Stop with a failure code instead of exceeding permission or scope.
+1. Confirm skill load and record this file.
+2. Find components with multiple or intended reuse sites.
+3. Verify actual usage and avoid promoting accidental helpers as stable extension points.
+4. Document how to use each component and when not to use it.
 
 ## Outputs
-- The section or artifact requested by W01 in the skill bundle.
-- Evidence links or file references sufficient for reviewer validation.
-- Failure code and blocker details when the procedure cannot complete.
+- `knowledge/component-index.md` with component, location, purpose, usage, examples, limitations, ownership, and freshness metadata.
 
 ## Permission Requirement
-- Read: inherited from host agent.
-- Write: inherited from host agent and limited to declared outputs.
-- Execute: inherited from host agent; no independent execution authority.
-- Network: NO unless W01 explicitly authorizes it.
+Read source/tests/knowledge; write knowledge/run artifacts only; no network.
 
 ## Write Impact
-Knowledge: YES; Product Code: NO; Test Code: NO; Documentation: NO unless knowledge docs
+Knowledge: YES; Product/Test Code: NO.
 
 ## Validation
-- Output matches the skill bundle.
-- Evidence is specific enough for review.
-- No forbidden skill, file, or permission was used.
-- Handoff data is complete.
+- Every component has concrete source and usage evidence.
+- Limitations and ownership are explicit.
+- Duplicated or unsafe components are marked as risks.
 
 ## Failure Codes
-- `MISSING_INPUT`
-- `INSUFFICIENT_EVIDENCE`
-- `PERMISSION_DENIED`
-- `CONFLICTING_RULE`
-- `UNSAFE_CHANGE`
-- `EXECUTION_FAILED`
+`SKILL_NOT_LOADED`, `MISSING_INPUT`, `INSUFFICIENT_EVIDENCE`, `PERMISSION_DENIED`.
 
 ## Review Mapping
-R01 KNOWLEDGE_QUALITY
+R01 `KNOWLEDGE_QUALITY`.

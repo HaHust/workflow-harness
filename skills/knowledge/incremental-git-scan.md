@@ -1,59 +1,54 @@
 # Incremental Git Scan
 
 ## Purpose
-Run the `incremental-git-scan` procedure inside the permission and context of the calling agent.
+Identify which knowledge artifacts are affected by codebase changes without rescanning unrelated areas.
 
 ## Allowed Agents
-A01 Knowledge Maintainer
+A01 Knowledge Maintainer.
 
 ## Trigger
-W01 includes this skill in `execution-workspace/<task>/runs/<run-id>/skill-bundle.md`.
+`SYNC_REQUIRED`, post-change `UPDATE_REQUIRED`, or explicit incremental refresh.
 
 ## Preconditions
-- The host agent has an active W01-approved skill bundle.
-- Required input artifacts exist or the host agent returns `BLOCKED`.
-- The skill runs inside the host agent permission scope and cannot expand it.
+- The version 2 bundle lists this file, baseline revision/fingerprint, and current project scope.
+- Existing knowledge index and manifest are available.
 
 ## Inputs
-- User requirement or reviewer request when relevant.
-- `execution-workspace/<task>/knowledge-context.md` when knowledge is needed.
-- Artifacts and source files named in the skill bundle.
-- Existing knowledge files referenced by the skill bundle.
+- Git diff/status and baseline revision when Git exists.
+- Added, changed, deleted, and renamed file inventory.
+- For non-Git projects, the previous and current deterministic source fingerprint/file inventory.
+- Existing `knowledge/` and `knowledge-impact.md` when present.
+
+## Must Analyze
+- Changed files and impacted modules, APIs, database objects, tests, configuration, and integrations.
+- Which knowledge files become dirty and which discovery skills must run.
+- Migration and configuration changes even when source code is unchanged.
 
 ## Procedure
-1. Confirm this skill is present in the skill bundle and not listed as forbidden.
-2. Read only the inputs needed for this procedure.
-3. Produce the required section or artifact with source evidence.
-4. Record assumptions, questions, risks, and changed files for the host agent handoff.
-5. Stop with a failure code instead of exceeding permission or scope.
+1. Confirm this file is loaded and record it in `Skill Files Read`.
+2. Compare baseline and current source state.
+3. Classify each changed path as API, business, persistence, migration, config, integration, test, docs, or infrastructure.
+4. Map changes to knowledge files and required follow-up skill files.
+5. Avoid a full scan unless evidence shows repository-wide impact.
 
 ## Outputs
-- The section or artifact requested by W01 in the skill bundle.
-- Evidence links or file references sufficient for reviewer validation.
-- Failure code and blocker details when the procedure cannot complete.
+- `knowledge/incremental-scan.md` with change classification and affected knowledge.
+- Dirty entries and current revision/fingerprint in `knowledge/knowledge-manifest.md`.
+- Required follow-up knowledge skill list for W01/A01.
 
 ## Permission Requirement
-- Read: inherited from host agent.
-- Write: inherited from host agent and limited to declared outputs.
-- Execute: inherited from host agent; no independent execution authority.
-- Network: NO unless W01 explicitly authorizes it.
+Read repository status/diff and knowledge; write only declared knowledge/run artifacts; no network.
 
 ## Write Impact
-Knowledge: YES; Product Code: NO; Test Code: NO; Documentation: NO unless knowledge docs
+Knowledge: YES; Product/Test Code: NO.
 
 ## Validation
-- Output matches the skill bundle.
-- Evidence is specific enough for review.
-- No forbidden skill, file, or permission was used.
-- Handoff data is complete.
+- Every changed source/API/DB/config path is mapped or explicitly marked no knowledge impact.
+- Renames and deletions invalidate old references.
+- Full scan escalation has evidence.
 
 ## Failure Codes
-- `MISSING_INPUT`
-- `INSUFFICIENT_EVIDENCE`
-- `PERMISSION_DENIED`
-- `CONFLICTING_RULE`
-- `UNSAFE_CHANGE`
-- `EXECUTION_FAILED`
+`SKILL_NOT_LOADED`, `MISSING_BASELINE`, `MISSING_INPUT`, `INSUFFICIENT_EVIDENCE`, `PERMISSION_DENIED`, `EXECUTION_FAILED`.
 
 ## Review Mapping
-R01 KNOWLEDGE_QUALITY
+R01 `KNOWLEDGE_QUALITY`.

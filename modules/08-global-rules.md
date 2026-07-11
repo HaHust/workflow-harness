@@ -67,3 +67,7 @@ Khi vượt max iteration, thiếu business input, conflict quyền hoặc debat
 ## 17. Native Agent Config Source Of Truth
 
 Khi target platform có native agent config, runtime behavior phải đến từ native config đó. Với Codex, `.codex/agents/*.toml` và `developer_instructions` là nguồn chạy agent; `agents/agent-registry.md` chỉ là routing index và `agents/**/*.md` chỉ là spec/sync artifact.
+
+## 18. Database Execution Freeze
+
+Agent được đọc schema, thiết kế thay đổi DB, và tạo/chỉnh/review migration hoặc SQL file, nhưng không được thực thi migration hay câu lệnh có hiệu lực `ALTER`, `DROP`, `TRUNCATE`, `DELETE`, hoặc `INSERT`. Lệnh cấm bao gồm raw SQL, DB client, shell/script wrapper, framework/ORM CLI, schema push/sync, seeder, application startup, test command, hoặc bất kỳ lệnh gián tiếp nào có thể gây các mutation trên. Nếu không chứng minh được lệnh là read-only thì không chạy; ghi `NOT_EXECUTED_POLICY`. Nếu execution là bắt buộc để hoàn thành task, trả `BLOCKED` với `DB_MUTATION_EXECUTION_FORBIDDEN` về W01/user. Skill bundle, test scope hoặc W01 approval không được override guardrail này.

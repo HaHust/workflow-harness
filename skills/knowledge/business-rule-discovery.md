@@ -1,59 +1,46 @@
 # Business Rule Discovery
 
 ## Purpose
-Run the `business-rule-discovery` procedure inside the permission and context of the calling agent.
+Extract business rules, constraints, permissions, and boundary conditions from code and tests.
 
 ## Allowed Agents
-A01 Knowledge Maintainer
+A01 Knowledge Maintainer.
 
 ## Trigger
-W01 includes this skill in `execution-workspace/<task>/runs/<run-id>/skill-bundle.md`.
+Bootstrap, business-logic changes, or refresh of affected features.
 
 ## Preconditions
-- The host agent has an active W01-approved skill bundle.
-- Required input artifacts exist or the host agent returns `BLOCKED`.
-- The skill runs inside the host agent permission scope and cannot expand it.
+The version 2 bundle lists this file and relevant business source/test scope.
 
 ## Inputs
-- User requirement or reviewer request when relevant.
-- `execution-workspace/<task>/knowledge-context.md` when knowledge is needed.
-- Artifacts and source files named in the skill bundle.
-- Existing knowledge files referenced by the skill bundle.
+- Validators, exceptions, rule classes, services, status and permission checks, entities, and tests.
+- Explicit user-approved requirements and existing `knowledge/business-rule.md`.
+
+## Must Analyze
+- Trigger conditions, validation, status, permission, amount/date/range boundaries, error behavior, side effects, and related tests.
 
 ## Procedure
-1. Confirm this skill is present in the skill bundle and not listed as forbidden.
-2. Read only the inputs needed for this procedure.
-3. Produce the required section or artifact with source evidence.
-4. Record assumptions, questions, risks, and changed files for the host agent handoff.
-5. Stop with a failure code instead of exceeding permission or scope.
+1. Confirm skill load and record this file.
+2. Trace each rule from trigger to enforcement and error/result behavior.
+3. Cite source and tests; distinguish implemented rule from requirement-only rule.
+4. Record conflicting, missing, or ambiguous rules as questions/risks.
 
 ## Outputs
-- The section or artifact requested by W01 in the skill bundle.
-- Evidence links or file references sufficient for reviewer validation.
-- Failure code and blocker details when the procedure cannot complete.
+- `knowledge/business-rule.md` with rule name, description, source, trigger, enforcement, error handling, related tests, confidence, and freshness metadata.
 
 ## Permission Requirement
-- Read: inherited from host agent.
-- Write: inherited from host agent and limited to declared outputs.
-- Execute: inherited from host agent; no independent execution authority.
-- Network: NO unless W01 explicitly authorizes it.
+Read source/tests/requirements/knowledge; write knowledge/run artifacts only; no network.
 
 ## Write Impact
-Knowledge: YES; Product Code: NO; Test Code: NO; Documentation: NO unless knowledge docs
+Knowledge: YES; Product/Test Code: NO.
 
 ## Validation
-- Output matches the skill bundle.
-- Evidence is specific enough for review.
-- No forbidden skill, file, or permission was used.
-- Handoff data is complete.
+- No rule exists without evidence.
+- Boundaries and permissions are explicit.
+- Contradictory implementations are reported.
 
 ## Failure Codes
-- `MISSING_INPUT`
-- `INSUFFICIENT_EVIDENCE`
-- `PERMISSION_DENIED`
-- `CONFLICTING_RULE`
-- `UNSAFE_CHANGE`
-- `EXECUTION_FAILED`
+`SKILL_NOT_LOADED`, `MISSING_INPUT`, `INSUFFICIENT_EVIDENCE`, `CONFLICTING_RULE`, `PERMISSION_DENIED`.
 
 ## Review Mapping
-R01 KNOWLEDGE_QUALITY
+R01 `KNOWLEDGE_QUALITY`.

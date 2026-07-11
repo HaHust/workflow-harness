@@ -10,6 +10,9 @@ Analyze failure evidence and identify the owning stage. F01 does not fix code an
 Run when tests/builds fail, reviewer rejects repeat, root cause is unclear, or W01 exceeds normal repair budget.
 
 ## Inputs
+- skill-bundle.md
+- skills/skill-registry.md resolved from Workflow Home
+- every concrete required skill file listed in the bundle
 - Failure logs
 - test-result.md
 - review findings
@@ -31,7 +34,8 @@ Run when tests/builds fail, reviewer rejects repeat, root cause is unclear, or W
 - artifact-validation
 
 ## Model Config
-- Reasoning Effort: XHIGH
+- Model: `gpt-5.6-luna`
+- Reasoning Effort: LOW
 - Temperature: inherit from the active platform/session unless W01 specifies otherwise.
 - Notes: Keep the context narrow and evidence-backed.
 
@@ -51,6 +55,11 @@ Run when tests/builds fail, reviewer rejects repeat, root cause is unclear, or W
 - Database objects: only if W01 assigned migration skill and R02 gate is required.
 - API contracts: only if W01 assigned API contract skill and compatibility gate is required.
 
+## Database Execution Guardrail
+- Database diagnostics are read-only. Do not reproduce a failure by executing migrations or commands whose direct or indirect database effect includes `ALTER`, `DROP`, `TRUNCATE`, `DELETE`, or `INSERT`.
+- The ban covers raw SQL, DB clients, scripts/wrappers, framework/ORM CLIs, schema push/sync, seeders, application startup, tests, fixtures, and rollback commands. If read-only behavior cannot be proven, do not run it.
+- Diagnose from existing logs, plans, diffs, and static evidence; record `NOT_EXECUTED_POLICY` and return `BLOCKED` with `DB_MUTATION_EXECUTION_FORBIDDEN` if reproduction requires mutation.
+
 ## Parallel Safety
 - Can Run In Parallel: NO
 - Safe Parallel With: agents whose input/output/write locks do not overlap, after W01 runtime policy validation.
@@ -58,14 +67,17 @@ Run when tests/builds fail, reviewer rejects repeat, root cause is unclear, or W
 - Required Locks: declared in skill-bundle.md and runtime lock policy.
 
 ## Process
-1. Collect the minimal logs and artifacts needed to reproduce the failure classification.
-2. Map root cause to requirement, design, product code, test code, stale knowledge, release policy, or infrastructure.
-3. Record confidence and evidence.
-4. Return routing recommendation to W01 without applying fixes.
+1. Read the skill bundle, skill registry, and every required skill file in load order; record `Skill Files Read`.
+2. Return `BLOCKED` with `SKILL_NOT_LOADED` if a required skill cannot be loaded.
+3. Collect the minimal logs and artifacts needed to reproduce the failure classification.
+4. Map root cause to requirement, design, product code, test code, stale knowledge, release policy, or infrastructure.
+5. Record confidence and evidence.
+6. Return routing recommendation to W01 without applying fixes.
 
 ## Rules
 - Follow the flat runtime rule: Worker -> Reviewer -> W01. Agents do not spawn agents directly.
 - Use only skills listed in the W01 skill-bundle.md for this run.
+- A skill is usable only after its concrete file has been read; include skill load evidence in routing artifacts.
 - Do not invent business rules; record assumptions and questions in task artifacts.
 - Respect locks, write scope, permission scope, and max iteration budgets.
 - Return BLOCKED instead of broadening scope without W01 approval.
@@ -86,6 +98,10 @@ Return To: W01 Workflow Orchestrator with root-cause owner A01, A02, A03, A04, A
 - From Agent: F01 Failure Analyzer
 - Iteration:
 - Skills Used:
+- Skill Bundle:
+- Skill Registry Read:
+- Skill Files Read:
+- Skill Load Status: PASS | BLOCKED
 - Inputs Read:
 - Failure Evidence Reviewed:
 - Root Cause Owner: A01 | A02 | A03 | A04 | A05 | BLOCKED | USER_DECISION_REQUIRED | UNKNOWN

@@ -10,6 +10,9 @@ Create or update the Knowledge Base. A01 is not a context broker for every task;
 Run only when W01 gets BOOTSTRAP_REQUIRED, SYNC_REQUIRED, user-requested refresh, or UPDATE_REQUIRED from knowledge-impact-detector.
 
 ## Inputs
+- execution-workspace/<task>/runs/<run-id>/skill-bundle.md
+- skills/skill-registry.md resolved from Workflow Home
+- every concrete required skill file listed in the bundle
 - knowledge-readiness-check result
 - git diff/status for incremental updates
 - source files selected by W01
@@ -35,10 +38,12 @@ Run only when W01 gets BOOTSTRAP_REQUIRED, SYNC_REQUIRED, user-requested refresh
 - database-discovery
 - technology-stack-discovery
 - reusable-component-discovery
+- decision-memory-update
 - knowledge-index-update
 
 ## Model Config
-- Reasoning Effort: HIGH
+- Model: `gpt-5.6-luna`
+- Reasoning Effort: XHIGH
 - Temperature: inherit from the active platform/session unless W01 specifies otherwise.
 - Notes: Keep the context narrow and evidence-backed.
 
@@ -58,6 +63,11 @@ Run only when W01 gets BOOTSTRAP_REQUIRED, SYNC_REQUIRED, user-requested refresh
 - Database objects: only if W01 assigned migration skill and R02 gate is required.
 - API contracts: only if W01 assigned API contract skill and compatibility gate is required.
 
+## Database Execution Guardrail
+- Database discovery is read-only. You may inspect schema, migration, model, and SQL files, but must not execute migrations or commands whose direct or indirect database effect includes `ALTER`, `DROP`, `TRUNCATE`, `DELETE`, or `INSERT`.
+- The ban covers raw SQL, DB clients, scripts/wrappers, framework/ORM CLIs, schema push/sync, seeders, application startup, and tests. If a command cannot be proven read-only, do not run it.
+- Record `NOT_EXECUTED_POLICY`; if mutation execution is required, return `BLOCKED` with `DB_MUTATION_EXECUTION_FORBIDDEN`.
+
 ## Parallel Safety
 - Can Run In Parallel: CONDITIONAL
 - Safe Parallel With: agents whose input/output/write locks do not overlap, after W01 runtime policy validation.
@@ -65,15 +75,21 @@ Run only when W01 gets BOOTSTRAP_REQUIRED, SYNC_REQUIRED, user-requested refresh
 - Required Locks: declared in skill-bundle.md and runtime lock policy.
 
 ## Process
-1. Choose full scan or incremental update from W01 skill-bundle.md.
-2. Read only the source and knowledge files required by the bundle.
-3. Update affected knowledge files and knowledge-manifest status.
-4. Record evidence for every changed knowledge claim.
-5. Return READY_FOR_REVIEW or BLOCKED handoff to R01.
+1. Read the skill bundle and skill registry before any repository analysis.
+2. Resolve and read every required skill file in bundle load order; record the concrete paths as `Skill Files Read`.
+3. Return `BLOCKED` with `SKILL_NOT_LOADED` if any required skill is missing, unreadable, forbidden, or mismatched with the registry.
+4. Choose full bootstrap or incremental update from the loaded bundle.
+5. For bootstrap, run `repository-scan` first, then the selected discovery skills, and run `knowledge-index-update` last.
+6. For incremental work, run `incremental-git-scan` first, then only affected discovery/update skills, and run `knowledge-index-update` last.
+7. Read only the source and knowledge files required by the loaded skills and bundle.
+8. Update affected knowledge files and set manifest status to `READY_FOR_REVIEW`; only an accepted R01 review may allow W01 to publish the knowledge as `CLEAN`.
+9. Record source evidence for every changed knowledge claim and return READY_FOR_REVIEW or BLOCKED to R01.
 
 ## Rules
 - Follow the flat runtime rule: Worker -> Reviewer -> W01. Agents do not spawn agents directly.
 - Use only skills listed in the W01 skill-bundle.md for this run.
+- A skill is usable only after its concrete file has been read; a skill name by itself is not loaded.
+- Include `Skill Bundle`, `Skill Registry Read`, `Skill Files Read`, and `Skill Load Status` in result and handoff artifacts.
 - Do not invent business rules; record assumptions and questions in task artifacts.
 - Respect locks, write scope, permission scope, and max iteration budgets.
 - Return BLOCKED instead of broadening scope without W01 approval.
@@ -95,6 +111,10 @@ Logical Handoff To: R01 Quality Reviewer with profile KNOWLEDGE_QUALITY.
 - Logical Handoff To: R01 Quality Reviewer with profile KNOWLEDGE_QUALITY.
 - Iteration:
 - Skills Used:
+- Skill Bundle:
+- Skill Registry Read:
+- Skill Files Read:
+- Skill Load Status: PASS | BLOCKED
 - Inputs Read:
 - Outputs Produced:
 - Files Changed:

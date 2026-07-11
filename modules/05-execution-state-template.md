@@ -1,6 +1,8 @@
 # Execution State
 
 ## Task Info
+- Task ID:
+- Task ID Format: <type>-YYYYMMDD-<short-kebab-summary>
 - Type: FULL_FEATURE | STANDARD_BUGFIX | HOTFIX | REFACTOR | TEST_ONLY | DOCS_ONLY | KNOWLEDGE_REFRESH | WORKFLOW_MAINTENANCE
 - Name:
 - Created At:

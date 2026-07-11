@@ -29,12 +29,20 @@ Use this form:
 ```text
 Spawn Codex subagent `<codex_agent_name>` with this run request:
 - Task ID:
+- Run ID:
 - Stage:
+- Workflow Home:
 - Skill Bundle:
+- Skill Registry:
+- Required Skill Files:
 - Required task inputs:
 - Expected artifacts:
+- Write scope and locks:
 - Review profile or handoff target:
+- Mandatory result fields: Skill Files Read, Skill Load Status
 ```
+
+The run request must explicitly tell the child to read the bundle and required skill files before task work. If any required skill cannot be resolved or read, the child returns `BLOCKED` with `SKILL_NOT_LOADED`.
 
 For Codex runtime dispatch, do not use a Markdown agent path as the role source or target. The Markdown agent file can be read for agent-definition maintenance only; it is not a required input for normal worker/reviewer execution.
 

@@ -19,12 +19,14 @@ After knowledge readiness is `READY` or after required A01 bootstrap/sync passes
 - Impacted modules/files if known.
 - `knowledge/knowledge-index.md`.
 - Relevant knowledge manifest status.
+- Current and manifest revision/fingerprint evidence from knowledge readiness.
 
 ## Procedure
-1. Identify required, optional, and not-required knowledge files.
-2. Reference specific sections when possible.
-3. Create `execution-workspace/<task>/knowledge-context.md`.
-4. Instruct each worker to open only listed files unless new evidence requires W01 approval.
+1. Confirm readiness and revision/fingerprint evidence are usable.
+2. Identify required, optional, and not-required knowledge files.
+3. Reference specific sections and freshness evidence when possible.
+4. Create `execution-workspace/<task>/knowledge-context.md` using the readiness-aware table format.
+5. Instruct each worker to open only listed files unless new evidence requires W01 approval.
 
 ## Outputs
 - `execution-workspace/<task>/knowledge-context.md`.
@@ -42,6 +44,7 @@ Workspace artifact only through W01.
 - Required knowledge entries are relevant to the task.
 - Unrelated large knowledge files are explicitly excluded.
 - Workers can trace why each file is required.
+- Context records current and manifest revision/fingerprint and cannot claim READY across a relevant mismatch.
 
 ## Failure Codes
 - `MISSING_INPUT`

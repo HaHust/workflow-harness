@@ -13,6 +13,8 @@ Run after W01 receives READY_FOR_REVIEW from A01, A02, A03, A04, or documentatio
 - Reviewer request from W01
 - worker artifact
 - skill-bundle.md
+- skills/skill-registry.md resolved from Workflow Home
+- every concrete required review skill file listed in the bundle
 - review profile
 - requirement and relevant knowledge files
 - diff or run logs when relevant
@@ -35,7 +37,8 @@ Run after W01 receives READY_FOR_REVIEW from A01, A02, A03, A04, or documentatio
 - documentation-review
 
 ## Model Config
-- Reasoning Effort: MEDIUM
+- Model: `gpt-5.6-luna`
+- Reasoning Effort: LOW
 - Temperature: inherit from the active platform/session unless W01 specifies otherwise.
 - Notes: Keep the context narrow and evidence-backed.
 
@@ -55,6 +58,11 @@ Run after W01 receives READY_FOR_REVIEW from A01, A02, A03, A04, or documentatio
 - Database objects: only if W01 assigned migration skill and R02 gate is required.
 - API contracts: only if W01 assigned API contract skill and compatibility gate is required.
 
+## Database Execution Guardrail
+- Database-related quality review is static/read-only. Do not execute migrations or commands whose direct or indirect database effect includes `ALTER`, `DROP`, `TRUNCATE`, `DELETE`, or `INSERT`.
+- Treat raw SQL, DB clients, scripts/wrappers, framework/ORM CLIs, schema push/sync, seeders, application startup, and tests as prohibited when mutation may occur.
+- Record missing runtime evidence as `NOT_EXECUTED_POLICY`; return `BLOCKED` with `DB_MUTATION_EXECUTION_FORBIDDEN` rather than executing or requesting another agent to execute it.
+
 ## Parallel Safety
 - Can Run In Parallel: YES
 - Safe Parallel With: agents whose input/output/write locks do not overlap, after W01 runtime policy validation.
@@ -62,14 +70,18 @@ Run after W01 receives READY_FOR_REVIEW from A01, A02, A03, A04, or documentatio
 - Required Locks: declared in skill-bundle.md and runtime lock policy.
 
 ## Process
-1. Confirm W01 supplied a review profile and artifact.
-2. Review only the assigned profile; request W01 approval before changing profile.
-3. List findings with evidence and required fixes.
-4. Return PASS, PASS_WITH_NOTES, REJECT, or BLOCKED to W01.
+1. Confirm W01 supplied a review profile, artifact, and version 2 skill bundle.
+2. Read the skill registry and every required review skill file in load order; record `Skill Files Read`.
+3. Return `BLOCKED` with `SKILL_NOT_LOADED` if a required review skill cannot be loaded.
+4. Review only the assigned profile; request W01 approval before changing profile.
+5. List findings with evidence and required fixes.
+6. For `KNOWLEDGE_QUALITY`, verify completeness, correctness, duplication, conflicts, freshness, source references, index coverage, and manifest state.
+7. Return PASS, PASS_WITH_NOTES, REJECT, or BLOCKED to W01.
 
 ## Rules
 - Follow the flat runtime rule: Worker -> Reviewer -> W01. Agents do not spawn agents directly.
 - Use only skills listed in the W01 skill-bundle.md for this run.
+- A review skill is usable only after its concrete file has been read; include skill load evidence in review and handoff artifacts.
 - Do not invent business rules; record assumptions and questions in task artifacts.
 - Respect locks, write scope, permission scope, and max iteration budgets.
 - Return BLOCKED instead of broadening scope without W01 approval.
@@ -90,6 +102,10 @@ Return To: W01 Workflow Orchestrator only. May recommend a next stage but cannot
 - Reviewer: R01 Quality Reviewer
 - Worker/Artifact Reviewed:
 - Review Profile:
+- Skill Bundle:
+- Skill Registry Read:
+- Skill Files Read:
+- Skill Load Status: PASS | BLOCKED
 - Artifact Reviewed:
 - Findings:
 - Required Fixes:

@@ -1,52 +1,50 @@
 # Similar Code Search
 
 ## Purpose
-Find existing code and tests that should constrain planning and implementation choices.
+Find existing features, flows, validation, persistence, integrations, and tests that should constrain the current plan.
 
 ## Allowed Agents
-A02 Planning Worker when W01 includes it in the planning skill bundle. A01 may index reusable components during knowledge bootstrap, but normal task search is owned by A02.
+A02 Planning Worker for normal tasks; A01 only when indexing reusable precedents during bootstrap.
 
 ## Trigger
-Planning tasks where existing patterns, APIs, tests, or business rules may provide a reusable precedent.
+Planning work where a comparable implementation may exist and the version 2 bundle selects this file.
 
 ## Preconditions
-- User requirement is available.
-- `knowledge-context.md` or source search scope is available.
+- Requirement and task scope are available.
+- Knowledge context or targeted source scope is available.
 
 ## Inputs
-- Requirement and acceptance criteria draft.
-- `knowledge/component-index.md`, `knowledge/patterns.md`, `knowledge/api-index.md`, and relevant source files when listed.
-- Existing tests for similar behavior.
+- Current requirement and acceptance criteria draft.
+- `knowledge/api-index.md`, `business-flow.md`, `business-rule.md`, `patterns.md`, and `component-index.md` when relevant.
+- Relevant source and tests.
+
+## Must Analyze
+- Similar APIs, flows, validations, persistence logic, integrations, error handling, and tests.
+- Similarity, meaningful differences, reusable components/patterns, and known defects in candidate examples.
 
 ## Procedure
-1. Search only likely modules and patterns first.
-2. Record similar files, reusable decisions, and differences.
-3. Feed evidence into planning package; do not implement code.
+1. Confirm skill load and record this file.
+2. Search knowledge indexes before targeted source/tests.
+3. Rank candidates by behavioral and architectural similarity.
+4. Record reusable decisions and differences that prevent blind copying.
+5. Do not implement product code.
 
 ## Outputs
-- Similar-code section in planning package or `execution-workspace/<task>/similar-code.md`.
+- `execution-workspace/<task>/similar-code.md` or a planning-package section with candidate feature, reasons, files, reusable pattern, differences, and warnings.
 
 ## Permission Requirement
-- Read: relevant source, tests, and knowledge files.
-- Write: planning workspace artifact only.
-- Execute: read-only search commands.
-- Network: NO.
+Read relevant source/tests/knowledge; write planning/run artifacts only; read-only commands; no network.
 
 ## Write Impact
-Workspace artifact only. No product/test/knowledge writes in normal task workflow.
+Workspace: YES; Product/Test/Knowledge writes: NO in normal task flow.
 
 ## Validation
-- Findings cite concrete files.
+- Candidates cite concrete files.
 - Similarity and differences are both documented.
-- No broad source scan is done when targeted search is enough.
+- Targeted search is preferred over unnecessary full scans.
 
 ## Failure Codes
-- `MISSING_INPUT`
-- `INSUFFICIENT_EVIDENCE`
-- `PERMISSION_DENIED`
-- `CONFLICTING_RULE`
-- `UNSAFE_CHANGE`
-- `EXECUTION_FAILED`
+`SKILL_NOT_LOADED`, `MISSING_INPUT`, `INSUFFICIENT_EVIDENCE`, `PERMISSION_DENIED`.
 
 ## Review Mapping
 R01 `PLANNING_QUALITY`.

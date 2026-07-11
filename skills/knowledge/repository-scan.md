@@ -1,59 +1,53 @@
 # Repository Scan
 
 ## Purpose
-Run the `repository-scan` procedure inside the permission and context of the calling agent.
+Create an evidence-backed map of the current codebase for `knowledge/repository.md`.
 
 ## Allowed Agents
-A01 Knowledge Maintainer
+A01 Knowledge Maintainer.
 
 ## Trigger
-W01 includes this skill in `execution-workspace/<task>/runs/<run-id>/skill-bundle.md`.
+Knowledge bootstrap, explicit full refresh, or a bundle that requires repository remapping.
 
 ## Preconditions
-- The host agent has an active W01-approved skill bundle.
-- Required input artifacts exist or the host agent returns `BLOCKED`.
-- The skill runs inside the host agent permission scope and cannot expand it.
+- The version 2 skill bundle lists this concrete file and repository scope.
+- Project root and permitted read scope are explicit.
 
 ## Inputs
-- User requirement or reviewer request when relevant.
-- `execution-workspace/<task>/knowledge-context.md` when knowledge is needed.
-- Artifacts and source files named in the skill bundle.
-- Existing knowledge files referenced by the skill bundle.
+- Source repository and file inventory.
+- Build descriptors such as `pom.xml`, Gradle files, `package.json`, or equivalents.
+- Docker, Kubernetes, environment, configuration, and CI/CD files when present.
+- Existing `knowledge/repository.md` for refresh comparison.
+
+## Must Analyze
+- Repository, module, package, and dependency structure.
+- Frameworks, build tools, monorepo or multi-repo shape, and entry points.
+- Configuration, environment, container, deployment, and CI/CD surfaces.
+- Build, test, and run commands only when supported by repository evidence.
 
 ## Procedure
-1. Confirm this skill is present in the skill bundle and not listed as forbidden.
-2. Read only the inputs needed for this procedure.
-3. Produce the required section or artifact with source evidence.
-4. Record assumptions, questions, risks, and changed files for the host agent handoff.
-5. Stop with a failure code instead of exceeding permission or scope.
+1. Confirm this file is loaded from the bundle and record it in `Skill Files Read`.
+2. Inventory the repository with read-only tools and identify build roots and entry points.
+3. Map modules, packages, dependencies, configuration, and operational files.
+4. Cite concrete source paths for every material claim.
+5. Record unknowns and risks without inventing business rules.
 
 ## Outputs
-- The section or artifact requested by W01 in the skill bundle.
-- Evidence links or file references sufficient for reviewer validation.
-- Failure code and blocker details when the procedure cannot complete.
+- `knowledge/repository.md` with project summary, module list, package map, dependency map, frameworks, commands, risks, source references, and freshness metadata.
 
 ## Permission Requirement
-- Read: inherited from host agent.
-- Write: inherited from host agent and limited to declared outputs.
-- Execute: inherited from host agent; no independent execution authority.
-- Network: NO unless W01 explicitly authorizes it.
+Read repository; write only declared knowledge/run artifacts; read-only commands; no network by default.
 
 ## Write Impact
-Knowledge: YES; Product Code: NO; Test Code: NO; Documentation: NO unless knowledge docs
+Knowledge: YES; Product/Test Code: NO.
 
 ## Validation
-- Output matches the skill bundle.
-- Evidence is specific enough for review.
-- No forbidden skill, file, or permission was used.
-- Handoff data is complete.
+- Repository scope and source revision/fingerprint are recorded.
+- Every module and entry point is traceable to source evidence.
+- Missing or unsupported details are marked unknown, not inferred.
 
 ## Failure Codes
-- `MISSING_INPUT`
-- `INSUFFICIENT_EVIDENCE`
-- `PERMISSION_DENIED`
-- `CONFLICTING_RULE`
-- `UNSAFE_CHANGE`
-- `EXECUTION_FAILED`
+`SKILL_NOT_LOADED`, `MISSING_INPUT`, `INSUFFICIENT_EVIDENCE`, `PERMISSION_DENIED`, `EXECUTION_FAILED`.
 
 ## Review Mapping
-R01 KNOWLEDGE_QUALITY
+R01 `KNOWLEDGE_QUALITY`.

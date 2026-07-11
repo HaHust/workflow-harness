@@ -1,59 +1,52 @@
 # Knowledge Review
 
 ## Purpose
-Run the `knowledge-review` procedure inside the permission and context of the calling agent.
+Review a complete knowledge publication candidate before W01 accepts it for task use.
 
 ## Allowed Agents
-R01 Quality Reviewer
+R01 Quality Reviewer.
 
 ## Trigger
-W01 includes this skill in `execution-workspace/<task>/runs/<run-id>/skill-bundle.md`.
+W01 dispatches R01 with `KNOWLEDGE_QUALITY` and a version 2 bundle containing this file.
 
 ## Preconditions
-- The host agent has an active W01-approved skill bundle.
-- Required input artifacts exist or the host agent returns `BLOCKED`.
-- The skill runs inside the host agent permission scope and cannot expand it.
+- A01 handoff is `READY_FOR_REVIEW`.
+- Candidate index, manifest, changed knowledge files, source evidence, and A01 skill load evidence exist.
 
 ## Inputs
-- User requirement or reviewer request when relevant.
-- `execution-workspace/<task>/knowledge-context.md` when knowledge is needed.
-- Artifacts and source files named in the skill bundle.
-- Existing knowledge files referenced by the skill bundle.
+- A01 result and handoff.
+- `knowledge/knowledge-index.md`, `knowledge-manifest.md`, and all changed knowledge files.
+- Source revision/fingerprint and representative source evidence.
+- A01 skill bundle and `Skill Files Read`.
+
+## Must Review
+- Completeness, correctness, duplication, conflicts, freshness, outdated claims, missing source references, index coverage, manifest consistency, and loaded-skill compliance.
 
 ## Procedure
-1. Confirm this skill is present in the skill bundle and not listed as forbidden.
-2. Read only the inputs needed for this procedure.
-3. Produce the required section or artifact with source evidence.
-4. Record assumptions, questions, risks, and changed files for the host agent handoff.
-5. Stop with a failure code instead of exceeding permission or scope.
+1. Confirm this review skill is loaded and record it in `Skill Files Read`.
+2. Validate A01 loaded every required skill file and produced each expected output.
+3. Sample material claims against current source and revision/fingerprint.
+4. Check all knowledge files are indexed, scoped, non-duplicative, and freshness-labelled.
+5. Return actionable findings and one verdict.
 
 ## Outputs
-- The section or artifact requested by W01 in the skill bundle.
-- Evidence links or file references sufficient for reviewer validation.
-- Failure code and blocker details when the procedure cannot complete.
+- `execution-workspace/<task>/runs/<run-id>/knowledge-review.md`.
+- Reviewer handoff with `PASS`, `PASS_WITH_NOTES`, `REJECT`, or `BLOCKED`.
+- On PASS/PASS_WITH_NOTES, recommendation for W01 to publish manifest status `CLEAN`; reviewer does not edit knowledge files.
 
 ## Permission Requirement
-- Read: inherited from host agent.
-- Write: inherited from host agent and limited to declared outputs.
-- Execute: inherited from host agent; no independent execution authority.
-- Network: NO unless W01 explicitly authorizes it.
+Read source/knowledge/run artifacts; write only own review/handoff artifacts; no network.
 
 ## Write Impact
-Review artifact only; Product/Test/Knowledge writes: NO
+Review artifact only; Product/Test/Knowledge writes: NO.
 
 ## Validation
-- Output matches the skill bundle.
-- Evidence is specific enough for review.
-- No forbidden skill, file, or permission was used.
-- Handoff data is complete.
+- Findings cite knowledge and source evidence.
+- `PASS_WITH_NOTES` contains only non-blocking freshness/quality notes.
+- Missing skill-load evidence or stale revision cannot pass.
 
 ## Failure Codes
-- `MISSING_INPUT`
-- `INSUFFICIENT_EVIDENCE`
-- `PERMISSION_DENIED`
-- `CONFLICTING_RULE`
-- `UNSAFE_CHANGE`
-- `EXECUTION_FAILED`
+`SKILL_NOT_LOADED`, `MISSING_INPUT`, `STALE_KNOWLEDGE`, `INSUFFICIENT_EVIDENCE`, `CONFLICTING_RULE`, `PERMISSION_DENIED`.
 
 ## Review Mapping
-W01 consumes R01 verdict
+W01 consumes R01 verdict and publishes or blocks the knowledge candidate.

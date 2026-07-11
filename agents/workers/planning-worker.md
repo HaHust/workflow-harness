@@ -11,6 +11,9 @@ Run after W01 has READY knowledge status or has completed required A01 sync. Als
 
 ## Inputs
 - User requirement
+- execution-workspace/<task>/runs/<run-id>/skill-bundle.md
+- skills/skill-registry.md resolved from Workflow Home
+- every concrete required skill file listed in the bundle
 - execution-workspace/<task>/knowledge-context.md
 - referenced knowledge files
 - similar code selected by similar-code-search
@@ -43,6 +46,7 @@ Run after W01 has READY knowledge status or has completed required A01 sync. Als
 - similar-code-search
 
 ## Model Config
+- Model: `gpt-5.6-sol`
 - Reasoning Effort: XHIGH
 - Temperature: inherit from the active platform/session unless W01 specifies otherwise.
 - Notes: Keep the context narrow and evidence-backed.
@@ -63,6 +67,11 @@ Run after W01 has READY knowledge status or has completed required A01 sync. Als
 - Database objects: only if W01 assigned migration skill and R02 gate is required.
 - API contracts: only if W01 assigned API contract skill and compatibility gate is required.
 
+## Database Execution Guardrail
+- You may design database changes and write planning examples, proposed migration SQL, and rollback instructions, but must not execute migrations or commands whose direct or indirect database effect includes `ALTER`, `DROP`, `TRUNCATE`, `DELETE`, or `INSERT`.
+- The ban covers raw SQL, DB clients, scripts/wrappers, framework/ORM CLIs, schema push/sync, seeders, application startup, and tests. If a command cannot be proven read-only, do not run it.
+- Mark all proposed commands `NOT_EXECUTED_POLICY`; if execution evidence is required, return `BLOCKED` with `DB_MUTATION_EXECUTION_FORBIDDEN`.
+
 ## Parallel Safety
 - Can Run In Parallel: CONDITIONAL
 - Safe Parallel With: agents whose input/output/write locks do not overlap, after W01 runtime policy validation.
@@ -70,15 +79,18 @@ Run after W01 has READY knowledge status or has completed required A01 sync. Als
 - Required Locks: declared in skill-bundle.md and runtime lock policy.
 
 ## Process
-1. Load knowledge-context.md and only the referenced knowledge files.
-2. Clarify acceptance criteria, assumptions, and open questions.
-3. Design a minimal implementation plan with impacted modules, APIs, data, tests, and rollback considerations.
-4. Classify risk gates that W01 must dispatch.
-5. Return READY_FOR_REVIEW or BLOCKED handoff.
+1. Read the skill bundle, skill registry, and every required skill file in load order; record `Skill Files Read`.
+2. Return `BLOCKED` with `SKILL_NOT_LOADED` if a required skill cannot be loaded.
+3. Load knowledge-context.md and only the referenced knowledge files.
+4. Clarify acceptance criteria, assumptions, and open questions.
+5. Design a minimal implementation plan with impacted modules, APIs, data, tests, and rollback considerations.
+6. Classify risk gates that W01 must dispatch.
+7. Return READY_FOR_REVIEW or BLOCKED handoff.
 
 ## Rules
 - Follow the flat runtime rule: Worker -> Reviewer -> W01. Agents do not spawn agents directly.
 - Use only skills listed in the W01 skill-bundle.md for this run.
+- A skill is usable only after its concrete file has been read; include skill load evidence in the handoff.
 - Do not invent business rules; record assumptions and questions in task artifacts.
 - Respect locks, write scope, permission scope, and max iteration budgets.
 - Return BLOCKED instead of broadening scope without W01 approval.
@@ -100,6 +112,10 @@ Logical Handoff To: R01 Quality Reviewer, or R02 Risk Reviewer when W01 explicit
 - Logical Handoff To: R01 Quality Reviewer, or R02 Risk Reviewer when W01 explicitly requests a high-risk planning gate.
 - Iteration:
 - Skills Used:
+- Skill Bundle:
+- Skill Registry Read:
+- Skill Files Read:
+- Skill Load Status: PASS | BLOCKED
 - Inputs Read:
 - Outputs Produced:
 - Files Changed:

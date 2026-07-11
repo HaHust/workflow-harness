@@ -17,6 +17,8 @@ Run after implementation passes review, or when W01 routes a confirmed test-code
 - referenced knowledge files
 - existing tests
 - skill-bundle.md
+- skills/skill-registry.md resolved from Workflow Home
+- every concrete required skill file listed in the bundle
 
 ## Outputs
 - Test code diff when needed
@@ -42,7 +44,8 @@ Run after implementation passes review, or when W01 routes a confirmed test-code
 - flaky-test-analysis
 
 ## Model Config
-- Reasoning Effort: XHIGH
+- Model: `gpt-5.6-luna`
+- Reasoning Effort: LOW
 - Temperature: inherit from the active platform/session unless W01 specifies otherwise.
 - Notes: Keep the context narrow and evidence-backed.
 
@@ -62,6 +65,11 @@ Run after implementation passes review, or when W01 routes a confirmed test-code
 - Database objects: only if W01 assigned migration skill and R02 gate is required.
 - API contracts: only if W01 assigned API contract skill and compatibility gate is required.
 
+## Database Execution Guardrail
+- W01-approved test scope does not permit database mutation execution. Do not run migrations or any test/command whose direct or indirect database effect includes `ALTER`, `DROP`, `TRUNCATE`, `DELETE`, or `INSERT`.
+- The ban covers raw SQL, DB clients, scripts/wrappers, framework/ORM CLIs, schema push/sync, seeders, fixtures, setup/teardown, application startup, integration tests, and wrapper commands. If isolation or read-only behavior cannot be proven, do not run the test.
+- Tests and migration files may be written or reviewed without execution. Record `NOT_EXECUTED_POLICY`; return `BLOCKED` with `DB_MUTATION_EXECUTION_FORBIDDEN` when execution is required.
+
 ## Parallel Safety
 - Can Run In Parallel: CONDITIONAL
 - Safe Parallel With: agents whose input/output/write locks do not overlap, after W01 runtime policy validation.
@@ -69,14 +77,17 @@ Run after implementation passes review, or when W01 routes a confirmed test-code
 - Required Locks: declared in skill-bundle.md and runtime lock policy.
 
 ## Process
-1. Build focused test strategy from acceptance criteria and code diff.
-2. Write or update tests only where needed.
-3. Run targeted tests first, then broader regression commands if profile requires.
-4. When tests fail, preserve logs and return BLOCKED or READY_FOR_REVIEW with clear failure classification.
+1. Read the skill bundle, skill registry, and every required skill file in load order; record `Skill Files Read`.
+2. Return `BLOCKED` with `SKILL_NOT_LOADED` if a required skill cannot be loaded.
+3. Build focused test strategy from acceptance criteria and code diff.
+4. Write or update tests only where needed.
+5. Run targeted tests first, then broader regression commands if profile requires.
+6. When tests fail, preserve logs and return BLOCKED or READY_FOR_REVIEW with clear failure classification.
 
 ## Rules
 - Follow the flat runtime rule: Worker -> Reviewer -> W01. Agents do not spawn agents directly.
 - Use only skills listed in the W01 skill-bundle.md for this run.
+- A skill is usable only after its concrete file has been read; include skill load evidence in result and handoff artifacts.
 - Do not invent business rules; record assumptions and questions in task artifacts.
 - Respect locks, write scope, permission scope, and max iteration budgets.
 - Return BLOCKED instead of broadening scope without W01 approval.
@@ -98,6 +109,10 @@ Logical Handoff To: R01 Quality Reviewer for TEST_QUALITY or TEST_COVERAGE, plus
 - Logical Handoff To: R01 Quality Reviewer for TEST_QUALITY or TEST_COVERAGE, plus R02 for security/performance/contract risk.
 - Iteration:
 - Skills Used:
+- Skill Bundle:
+- Skill Registry Read:
+- Skill Files Read:
+- Skill Load Status: PASS | BLOCKED
 - Inputs Read:
 - Outputs Produced:
 - Files Changed:

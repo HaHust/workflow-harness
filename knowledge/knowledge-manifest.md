@@ -3,6 +3,8 @@
 ## Status
 - State: CLEAN | DIRTY | BOOTSTRAP_REQUIRED | SYNC_REQUIRED | BLOCKED
 - Source Revision:
+- Source Fingerprint:
+- Fingerprint Scope:
 - Last Full Scan:
 - Last Incremental Update:
 
@@ -18,6 +20,8 @@
 | api-index.md | API endpoints, clients, contracts | | | |
 | database.md | Entities, persistence, migrations | | | |
 | technology-stack.md | Frameworks, dependencies, infrastructure | | | |
+| skill-matrix.md | Technical capabilities, usage locations, versions, and implementation constraints | | | |
 | component-index.md | Reusable components | | | |
 | decision.md | Architecture and workflow decisions | | | |
+| incremental-scan.md | Latest incremental change-to-knowledge impact map | | | Optional |
 | knowledge-index.md | Index and navigation | | | |

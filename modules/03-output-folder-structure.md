@@ -44,6 +44,9 @@ workflow/
     stop-policy.md
     debate-policy.md
 
+scripts/
+  validate-skill-bundle.sh
+
 .codex/
   config.toml
   agents/
@@ -94,3 +97,22 @@ execution-workspace/<TYPE>-YYYYMMDD-short-name/
   debate/<debate-id>/
   history/
 ```
+
+### Task ID Naming Rule
+
+W01 must assign `task-id` before creating runtime artifacts.
+
+Format:
+
+```text
+<type>-YYYYMMDD-<short-kebab-summary>
+```
+
+Rules:
+
+- `<type>` must be one of `feature`, `bugfix`, `hotfix`, `refactor`, `test`, `docs`, `knowledge`, `maintenance`, or `analysis`.
+- Date uses the current local date at task start.
+- `<short-kebab-summary>` must be lowercase ASCII, digits, and hyphens only; derive it from the user's requirement in 2-6 words.
+- Keep `task-id` stable for the whole workflow. Do not rename it after artifacts exist.
+- If resuming an existing runtime workspace, reuse the existing `task-id`.
+- Runtime artifacts must be written under the configured runtime workspace path for that `task-id`; do not create workflow artifacts in the project root.

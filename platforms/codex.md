@@ -137,10 +137,10 @@ Map từ prompt chung sang Codex:
 
 Rule bắt buộc khi sinh Codex agents:
 
-- Planning agents, bug finding agents, failure analysis agents, test case generation agents và workflow/agent optimization agents phải dùng `model_reasoning_effort = "xhigh"`.
-- Agent implementation, integration, refactor và agent có nhiều bước suy luận mặc định dùng `xhigh`, trừ khi có lý do rõ để hạ xuống.
-- Reviewer thông thường có thể dùng `low`.
-- Reviewer/gate rủi ro cao như R02 Risk Reviewer profiles such as `SECURITY_GATE`, `ARCHITECTURE_GATE`, `RELEASE_GATE`, and `FINAL_GATE` must not be lowered below the shared agent spec; use `medium`, `high`, or `xhigh` when risk is material.
+- `.codex/agents/workflow-orchestrator.toml` và `.codex/agents/planning-worker.toml` dùng `model = "gpt-5.6-sol"` với `model_reasoning_effort = "xhigh"`.
+- `.codex/agents/knowledge-maintainer.toml` dùng `model = "gpt-5.6-luna"` với `model_reasoning_effort = "xhigh"` vì phải tổng hợp và đồng bộ knowledge từ nhiều nguồn bằng chứng.
+- Tất cả custom agent TOML còn lại dùng `model = "gpt-5.6-luna"` với `model_reasoning_effort = "low"`, bao gồm implementation, test, verification, quality reviewer, risk reviewer, failure analyzer, workflow optimizer, và agent evolution reviewer.
+- Không tự nâng reasoning effort của agent khác để né thiết kế workflow. Nếu một task cần suy luận sâu hơn, W01 phải chia nhỏ task, tăng evidence, hoặc yêu cầu user phê duyệt thay đổi config.
 - Nếu không pin `model`, Codex sẽ kế thừa/chọn model theo session. Chỉ pin `model` khi user yêu cầu hoặc workflow có lý do rõ.
 
 ### Sandbox And Permission Rules For Codex
@@ -200,6 +200,9 @@ developer_instructions = """
 
 ## Write Scope
 ...
+
+## Database Execution Guardrail
+For database-related agents, allow design/edit/review of migration and SQL files but forbid executing migrations or commands with direct or indirect ALTER, DROP, TRUNCATE, DELETE, or INSERT effects. Include raw SQL, DB clients, wrappers, framework/ORM CLIs, schema push/sync, seeders, application startup, and tests. Use NOT_EXECUTED_POLICY or BLOCKED with DB_MUTATION_EXECUTION_FORBIDDEN.
 
 ## Parallel Safety
 ...
@@ -269,10 +272,10 @@ Trước khi kết thúc generation cho target Codex, kiểm tra:
 - [ ] Có `.codex/agents/*.toml` cho từng runnable custom agent.
 - [ ] Mỗi TOML có `name`, `description`, `developer_instructions`.
 - [ ] `model_reasoning_effort` dùng đúng giá trị Codex: `minimal`, `low`, `medium`, `high`, `xhigh`.
-- [ ] Agent reasoning mapping tuân thủ rule planning/bug/test/failure/optimization dùng `xhigh`.
-- [ ] Reviewer thường dùng `low` nhưng high-risk gate không bị hạ thấp trái shared spec.
+- [ ] Workflow-orchestrator và planning-worker dùng `model = "gpt-5.6-sol"` với `xhigh`; knowledge-maintainer dùng `model = "gpt-5.6-luna"` với `xhigh`; mọi Codex custom agent khác dùng `model = "gpt-5.6-luna"` với `low`.
 - [ ] Reviewer/scanner không ghi file dùng `sandbox_mode = "read-only"`; reviewer/scanner ghi artifact dùng `workspace-write` với write scope hẹp.
 - [ ] Writer dùng `sandbox_mode = "workspace-write"` và có write scope rõ.
+- [ ] Mọi agent liên quan DB có `Database Execution Guardrail`; không agent nào được thực thi migration hoặc lệnh gây `ALTER`, `DROP`, `TRUNCATE`, `DELETE`, hay `INSERT` trực tiếp/gián tiếp.
 - [ ] Không có agent mồ côi trong `agents/agent-registry.md`.
 - [ ] Registry map được Agent ID sang Codex `name` và TOML file.
 - [ ] Workflow Orchestrator có prompt invocation yêu cầu spawn song song khi an toàn.

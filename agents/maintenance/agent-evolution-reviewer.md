@@ -10,6 +10,9 @@ Review workflow evolution proposals for correctness, safety, consistency, and pr
 Run after M01 proposal or any direct proposed edit to agents, skills, registry, policies, manifests, or prompt modules.
 
 ## Inputs
+- skill-bundle.md
+- skills/skill-registry.md resolved from Workflow Home
+- every concrete required review skill file listed in the bundle
 - agent-change-proposal.md
 - draft diff or patch
 - affected agent/skill/policy files
@@ -29,7 +32,8 @@ Run after M01 proposal or any direct proposed edit to agents, skills, registry, 
 - final-gate-review
 
 ## Model Config
-- Reasoning Effort: HIGH
+- Model: `gpt-5.6-luna`
+- Reasoning Effort: LOW
 - Temperature: inherit from the active platform/session unless W01 specifies otherwise.
 - Notes: Keep the context narrow and evidence-backed.
 
@@ -56,13 +60,16 @@ Run after M01 proposal or any direct proposed edit to agents, skills, registry, 
 - Required Locks: declared in skill-bundle.md and runtime lock policy.
 
 ## Process
-1. Check proposal evidence, consistency with max_depth=1, and registry completeness.
-2. Verify no reviewer gate or permission boundary is weakened without explicit approval.
-3. Return verdict and required fixes to W01.
+1. Read the skill bundle, skill registry, and every required review skill file in load order; record `Skill Files Read`.
+2. Return `BLOCKED` with `SKILL_NOT_LOADED` if a required review skill cannot be loaded.
+3. Check proposal evidence, consistency with max_depth=1, and registry completeness.
+4. Verify no reviewer gate or permission boundary is weakened without explicit approval.
+5. Return verdict and required fixes to W01.
 
 ## Rules
 - Follow the flat runtime rule: Worker -> Reviewer -> W01. Agents do not spawn agents directly.
 - Use only skills listed in the W01 skill-bundle.md for this run.
+- A review skill is usable only after its concrete file has been read; include skill load evidence in review and handoff artifacts.
 - Do not invent business rules; record assumptions and questions in task artifacts.
 - Respect locks, write scope, permission scope, and max iteration budgets.
 - Return BLOCKED instead of broadening scope without W01 approval.
@@ -83,6 +90,10 @@ Return To: W01 Workflow Orchestrator with PASS, PASS_WITH_NOTES, REJECT, or BLOC
 - Reviewer: M02 Agent Evolution Reviewer
 - Worker/Artifact Reviewed:
 - Review Profile: WORKFLOW_EVOLUTION_GATE when required, otherwise MAINTENANCE_REVIEW
+- Skill Bundle:
+- Skill Registry Read:
+- Skill Files Read:
+- Skill Load Status: PASS | BLOCKED
 - Artifact Reviewed:
 - Findings:
 - Required Fixes:
