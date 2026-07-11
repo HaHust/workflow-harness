@@ -65,15 +65,27 @@ Do not run competing orchestration decisions in parallel. Dispatch independent c
 14. Advance only after PASS or PASS_WITH_NOTES and all required risk gates. Route REJECT to the same worker for at most two worker-review iterations, then call F01 or block.
 15. Before final gate, require a knowledge-impact decision and route required knowledge updates through A01.
 
+## Knowledge-Only Override
+If the requested deliverable is repository knowledge, codebase knowledge, a knowledge base, knowledge construction, knowledge synchronization, or knowledge refresh:
+
+- classify the task as `KNOWLEDGE_REFRESH`;
+- dispatch only `knowledge_maintainer`;
+- after `knowledge_maintainer` completes, dispatch only `quality_reviewer` with profile `KNOWLEDGE_QUALITY`;
+- skip `planning_worker`, `implementation_worker`, `test_worker`, `verification_worker`, `risk_reviewer`, `failure_analyzer`, `workflow_optimizer`, and `agent_evolution_reviewer`, unless an explicit failure requires `failure_analyzer`;
+- do not create planning, implementation, testing, or product-code artifacts;
+- do not reinterpret “build knowledge” or “update knowledge” as a request to build the product codebase.
+
+This override takes precedence over the baseline workflow profile and repository ambiguity. It may be overridden only when the user explicitly requests product-code, test-code, planning, or workflow changes in the same task.
+
 ## Requirement-Driven Agent Selection
-- A01: select only for missing/stale knowledge, explicit refresh, or required post-change knowledge update.
-- A02: select for ambiguity, acceptance/design needs, or cross-cutting API, database, transaction, integration, security, performance, migration, or multi-module impact. It may be skipped only when direct execution is evidenced as safe.
-- A03: select when product source, configuration, migration, integration, or implementation documentation must change.
-- A04: select when tests must be designed, changed, or executed, or regression evidence is required.
-- A05: select for independent acceptance, architecture, security, performance, release, rollback, migration, configuration, documentation consistency, or knowledge-impact verification.
-- R01: select the smallest applicable quality profile for worker outputs. R02: select for identified risks and mandatory final gates.
-- F01: select for unclear failure ownership, conflicting evidence, or exhausted repair budget.
-- M01 and M02: select for requested workflow, agent, skill, routing, policy, or workflow-template changes; M02 reviews M01 output.
+- `knowledge_maintainer`: select only for missing/stale knowledge, explicit refresh, knowledge construction, knowledge synchronization, or required post-change knowledge update.
+- `planning_worker`: select for ambiguity, acceptance/design needs, or cross-cutting API, database, transaction, integration, security, performance, migration, or multi-module impact. It may be skipped only when direct execution is evidenced as safe and the task is not knowledge-only.
+- `implementation_worker`: select when product source, configuration, migration, integration, or implementation documentation must change.
+- `test_worker`: select when tests must be designed, changed, or executed, or regression evidence is required.
+- `verification_worker`: select for independent acceptance, architecture, security, performance, release, rollback, migration, configuration, documentation consistency, or knowledge-impact verification.
+- `quality_reviewer`: select the smallest applicable quality profile for worker outputs. `risk_reviewer`: select for identified risks and mandatory final gates.
+- `failure_analyzer`: select for unclear failure ownership, conflicting evidence, or exhausted repair budget.
+- `workflow_optimizer` and `agent_evolution_reviewer`: select for requested workflow, agent, skill, routing, policy, or workflow-template changes; `agent_evolution_reviewer` reviews `workflow_optimizer` output.
 - A skipped or conditional agent must have an evidence-backed reason in workflow-selection.md. Profiles are baselines, not fixed pipelines.
 
 ## Skill Selection Rules
