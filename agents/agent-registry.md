@@ -9,10 +9,11 @@ This registry contains only runnable custom agents in Backend Agent Architecture
 - Reviewer agents return findings to W01 only; they may recommend a next stage but cannot dispatch it.
 - W01 is the only shared-state writer for execution state, handoff log, runtime log, dispatch log, permission audit, and parallel groups.
 - A01 Knowledge Maintainer is not a default pipeline stage. It runs only for bootstrap, sync, user refresh, or post-change knowledge update.
+- For Codex runtime, `Codex Name` plus `Codex TOML` is the executable target. `Spec Markdown File` is a spec/sync reference, not the runtime instruction source.
 
 ## Runnable Agents
 
-| ID | Kind | Stage | Markdown File | Codex Name | Codex TOML | Called By | Allowed Skill Families | Logical Handoff | Permission Summary | Parallel |
+| ID | Kind | Stage | Spec Markdown File | Codex Name | Codex TOML | Called By | Allowed Skill Families | Logical Handoff | Permission Summary | Parallel |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | W01 | ORCHESTRATOR | ALL | `agents/workflow/workflow-orchestrator.md` | `workflow_orchestrator` | `.codex/agents/workflow-orchestrator.toml` | User/root entrypoint | knowledge-readiness-check, knowledge-context-loader, workflow-profile-selection, artifact-validation... | Dispatches A01, A02, A03, A04, A05, R01, R02, F01, M01, or M02 through a flat max_depth=1 runtime. Final return is to user. | Runtime coordination files only; no product code writes. | NO |
 | A01 | WORKER | KNOWLEDGE | `agents/workers/knowledge-maintainer.md` | `knowledge_maintainer` | `.codex/agents/knowledge-maintainer.toml` | W01 | repository-scan, incremental-git-scan, convention-analysis, architecture-discovery... | Logical Handoff To: R01 Quality Reviewer with profile KNOWLEDGE_QUALITY. | Read source and knowledge; write knowledge files and its run artifacts only. | CONDITIONAL |
@@ -56,6 +57,7 @@ This registry contains only runnable custom agents in Backend Agent Architecture
 
 - A worker handoff target must be `R01` or `R02`; it cannot target another worker.
 - A reviewer handoff target must be `W01`; it cannot target a worker or stage.
+- W01 must spawn Codex custom agents by `Codex Name`; it must not use the `Spec Markdown File` column as the runtime role source or dispatch target.
 - `F01` returns root-cause routing to W01 and never fixes code.
 - `M01` and `M02` are optional maintenance agents and are not part of normal feature profiles.
 - A conditional or skipped agent must have the skip reason recorded in `execution-workspace/<task>/execution-state.md`.

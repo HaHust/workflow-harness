@@ -28,6 +28,12 @@ Every runnable custom agent file must include:
 ## Stop Condition
 ```
 
+### Source Of Truth Boundary
+
+- Files under `agents/**/*.md` are cross-platform agent specs and documentation for generation, review, and sync.
+- For Codex output, `agents/**/*.md` is not the runnable agent config. Runtime behavior must come from `.codex/agents/*.toml` and its `developer_instructions`.
+- A normal Codex dispatch must not tell an agent to read its own Markdown spec to learn its role. Dispatch by Codex `name`; read Markdown specs only when auditing, editing, or syncing agent definitions.
+
 ### Worker Handoff Contract
 
 ```md

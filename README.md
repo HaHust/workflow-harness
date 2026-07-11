@@ -17,7 +17,7 @@ This repository contains a modular prompt and generated harness for a simpler ba
 - `agents/`: runnable V3 custom-agent specs.
 - `skills/`: reusable skill contracts.
 - `workflow/`: stage and runtime policies applied by W01.
-- `.codex/agents/`: Codex custom-agent TOML files.
+- `.codex/agents/`: Codex custom-agent TOML files; these are the Codex runtime source of truth.
 - `templates/` and `execution-workspace/_template/`: task workspace templates.
 - `dist/`: assembled prompt output.
 

@@ -20,6 +20,24 @@ Worker -> Reviewer REJECT -> W01 increments iteration -> same Worker fixes -> Re
 
 `MAX_WORKER_REVIEW_ITERATIONS = 2`. After that W01 calls F01 or marks BLOCKED.
 
+### Codex Dispatch Contract
+
+When target platform is Codex, W01 must dispatch by the `Codex Name` from `agents/agent-registry.md`, which must match `name` in `.codex/agents/<agent>.toml`.
+
+Use this form:
+
+```text
+Spawn Codex subagent `<codex_agent_name>` with this run request:
+- Task ID:
+- Stage:
+- Skill Bundle:
+- Required task inputs:
+- Expected artifacts:
+- Review profile or handoff target:
+```
+
+For Codex runtime dispatch, do not use a Markdown agent path as the role source or target. The Markdown agent file can be read for agent-definition maintenance only; it is not a required input for normal worker/reviewer execution.
+
 ### Workflow Profiles
 
 | Profile | Flow |

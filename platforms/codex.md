@@ -42,6 +42,16 @@ Luật:
   - Handoff.
   - Permission/write scope.
 
+### Codex Runtime Source Of Truth
+
+Khi target platform là Codex:
+
+- `.codex/agents/*.toml` là **runtime source of truth** cho custom-agent behavior. Codex phải spawn agent bằng `name` trong TOML để nạp `developer_instructions`.
+- `agents/agent-registry.md` chỉ là routing, permission, lock, reviewer/gate, và handoff index. Dùng registry để map Agent ID sang Codex `name` và TOML file; không dùng registry để tái tạo behavior của agent.
+- `agents/**/*.md` là cross-platform/human-readable agent spec và sync artifact. Không dùng Markdown agent file làm runtime instruction source cho Codex.
+- W01 dispatch trên Codex phải dùng wording kiểu `Spawn Codex subagent <codex_agent_name> ...`; không dùng Markdown agent path làm role source hoặc dispatch target.
+- Agent Markdown file chỉ được đọc khi audit/update/sync agent definitions, hoặc khi user yêu cầu trực tiếp. Nó không được đưa vào required inputs của một normal runtime dispatch chỉ để agent học vai trò của chính nó.
+
 ### `.codex/config.toml` Required
 
 Sinh hoặc cập nhật `.codex/config.toml` với cấu hình subagent tối thiểu:
@@ -104,6 +114,8 @@ Luật schema:
   - Debate Policy
   - Failure Handling
   - Stop Condition
+- Trong `developer_instructions` của mọi Codex agent phải có rule rõ ràng:
+  - `Treat this TOML developer_instructions as your runtime instructions; do not read agents/**/*.md to learn your own role unless the task is explicitly about auditing, editing, or syncing agent definitions.`
 - `nickname_candidates` nếu dùng phải là list không rỗng, unique, chỉ dùng ASCII letters, digits, spaces, hyphens và underscores.
 
 ### Reasoning Effort Mapping For Codex
@@ -196,7 +208,8 @@ developer_instructions = """
 ...
 
 ## Rules
-...
+- Treat this TOML developer_instructions as your runtime instructions; do not read agents/**/*.md to learn your own role unless the task is explicitly about auditing, editing, or syncing agent definitions.
+- ...
 
 ## Do Not
 ...
@@ -234,6 +247,7 @@ Spawn these Codex subagents in parallel, wait for all of them, then consolidate 
 - Reviewer chỉ spawn sau worker tương ứng.
 - Barrier steps such as A04 test execution, A01 knowledge index update, and R02 final gate do not run in parallel with upstream writers.
 - Nếu có conflict lock/write scope, chạy tuần tự.
+- Dispatch target phải là Codex `name` từ registry/TOML, không phải Agent ID đơn lẻ và không phải Markdown file path.
 
 ### CSV Fan-out Rule
 

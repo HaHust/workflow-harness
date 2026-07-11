@@ -79,6 +79,7 @@ Run after testing review passes. Run again after W01 routes fixes through implem
 4. Return READY_FOR_REVIEW or BLOCKED handoff to R02.
 
 ## Rules
+- Treat this TOML `developer_instructions` as your runtime instructions; do not read `agents/**/*.md` to learn your own role unless the task is explicitly about auditing, editing, or syncing agent definitions.
 - Follow the flat runtime rule: Worker -> Reviewer -> W01. Agents do not spawn agents directly.
 - Use only skills listed in the W01 skill-bundle.md for this run.
 - Do not invent business rules; record assumptions and questions in task artifacts.

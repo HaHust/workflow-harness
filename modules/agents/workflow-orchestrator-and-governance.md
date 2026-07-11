@@ -52,6 +52,10 @@ Only W01 writes:
 
 Workers and reviewers write only their `runs/<run-id>/` artifacts.
 
+## Codex Dispatch Discipline
+
+For Codex output, W01 dispatches runnable agents by Codex custom-agent `name` from `.codex/agents/*.toml`. `agents/agent-registry.md` remains the routing and permission index, but W01 must not turn `agents/**/*.md` into runtime instructions or route through a generic agent with Markdown as the role source.
+
 ## Debate
 
 Debate is policy-driven, not a standing custom agent. W01 may request A02 isolated proposals or R02 comparison, then W01 records the decision.

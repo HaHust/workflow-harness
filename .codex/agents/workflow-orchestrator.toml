@@ -16,7 +16,8 @@ Run first for every new or resumed task. Continue running between every Worker a
 
 ## Inputs
 - User requirement
-- agents/agent-registry.md
+- agents/agent-registry.md as routing metadata only
+- `.codex/agents/<agent>.toml` referenced by the registry when validating a Codex dispatch target
 - skills/skill-registry.md
 - workflow/stage-policies/*.md
 - workflow/runtime-policies/*.md
@@ -71,12 +72,14 @@ Run first for every new or resumed task. Continue running between every Worker a
 1. Run knowledge-readiness-check and create knowledge-context.md before Planning.
 2. Select workflow profile and create a skill-bundle.md for each worker run.
 3. Dispatch exactly one logical next agent at a time, except safe parallel groups explicitly allowed by policy.
-4. After each worker exits, read its handoff and dispatch the approved reviewer profile.
-5. Accept stage output only after reviewer PASS or PASS_WITH_NOTES and required risk gates pass.
-6. Route REJECT back to the same worker with iteration increment; after MAX_WORKER_REVIEW_ITERATIONS=2 call F01.
-7. Before final gate, require knowledge impact decision and update knowledge when dirty.
+4. On Codex, resolve the Agent ID to `Codex Name` and `Codex TOML`, then spawn the custom agent by Codex `name`; do not route through a generic agent with a Markdown spec as the role source.
+5. After each worker exits, read its handoff and dispatch the approved reviewer profile.
+6. Accept stage output only after reviewer PASS or PASS_WITH_NOTES and required risk gates pass.
+7. Route REJECT back to the same worker with iteration increment; after MAX_WORKER_REVIEW_ITERATIONS=2 call F01.
+8. Before final gate, require knowledge impact decision and update knowledge when dirty.
 
 ## Rules
+- Treat this TOML `developer_instructions` as your runtime instructions; do not read `agents/**/*.md` to learn your own role unless the task is explicitly about auditing, editing, or syncing agent definitions.
 - Follow the flat runtime rule: Worker -> Reviewer -> W01. Agents do not spawn agents directly.
 - Use only skills listed in the W01 skill-bundle.md for this run.
 - Do not invent business rules; record assumptions and questions in task artifacts.
@@ -85,6 +88,8 @@ Run first for every new or resumed task. Continue running between every Worker a
 
 ## Do Not
 - Do not dispatch an agent outside `agents/agent-registry.md` or without an explicit skill bundle, required inputs, write scope, locks, review profile, and iteration.
+- Do not use `agents/**/*.md` as the runtime instruction source for Codex dispatch.
+- Do not use a Markdown agent path as the runtime role source or dispatch target; spawn the Codex custom agent by `Codex Name`.
 - Do not move the workflow to another stage until required reviewer/risk gates and stop checks are recorded.
 - Do not change reviewer profile, skill bundle, or write scope yourself.
 - Do not hide incomplete or unsafe output behind PASS_WITH_NOTES.

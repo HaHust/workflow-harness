@@ -73,6 +73,7 @@ Run after W01 receives READY_FOR_REVIEW from A01, A02, A03, A04, or documentatio
 4. Return PASS, PASS_WITH_NOTES, REJECT, or BLOCKED to W01.
 
 ## Rules
+- Treat this TOML `developer_instructions` as your runtime instructions; do not read `agents/**/*.md` to learn your own role unless the task is explicitly about auditing, editing, or syncing agent definitions.
 - Follow the flat runtime rule: Worker -> Reviewer -> W01. Agents do not spawn agents directly.
 - Use only skills listed in the W01 skill-bundle.md for this run.
 - Do not invent business rules; record assumptions and questions in task artifacts.

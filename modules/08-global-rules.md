@@ -63,3 +63,7 @@ Debate là workflow policy do W01 quản lý, không phải standing custom agen
 ## 16. Stop And Report
 
 Khi vượt max iteration, thiếu business input, conflict quyền hoặc debate không kết luận, W01 phải đánh dấu `BLOCKED`, tạo `blocked-report.md` và yêu cầu user quyết định.
+
+## 17. Native Agent Config Source Of Truth
+
+Khi target platform có native agent config, runtime behavior phải đến từ native config đó. Với Codex, `.codex/agents/*.toml` và `developer_instructions` là nguồn chạy agent; `agents/agent-registry.md` chỉ là routing index và `agents/**/*.md` chỉ là spec/sync artifact.

@@ -14,3 +14,4 @@ The generated V3 system must prove:
 - Repair, failure, debate, restart, and maintenance loops have explicit budgets.
 - Shared state has a single writer: W01.
 - Codex `max_depth = 1` is respected.
+- Codex runtime dispatch uses `.codex/agents/*.toml` via `Codex Name`; it does not reconstruct agent behavior from `agents/**/*.md`.

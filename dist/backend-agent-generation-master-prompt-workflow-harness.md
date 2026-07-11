@@ -46,6 +46,16 @@ Luật:
   - Handoff.
   - Permission/write scope.
 
+### Codex Runtime Source Of Truth
+
+Khi target platform là Codex:
+
+- `.codex/agents/*.toml` là **runtime source of truth** cho custom-agent behavior. Codex phải spawn agent bằng `name` trong TOML để nạp `developer_instructions`.
+- `agents/agent-registry.md` chỉ là routing, permission, lock, reviewer/gate, và handoff index. Dùng registry để map Agent ID sang Codex `name` và TOML file; không dùng registry để tái tạo behavior của agent.
+- `agents/**/*.md` là cross-platform/human-readable agent spec và sync artifact. Không dùng Markdown agent file làm runtime instruction source cho Codex.
+- W01 dispatch trên Codex phải dùng wording kiểu `Spawn Codex subagent <codex_agent_name> ...`; không dùng Markdown agent path làm role source hoặc dispatch target.
+- Agent Markdown file chỉ được đọc khi audit/update/sync agent definitions, hoặc khi user yêu cầu trực tiếp. Nó không được đưa vào required inputs của một normal runtime dispatch chỉ để agent học vai trò của chính nó.
+
 ### `.codex/config.toml` Required
 
 Sinh hoặc cập nhật `.codex/config.toml` với cấu hình subagent tối thiểu:
@@ -108,6 +118,8 @@ Luật schema:
   - Debate Policy
   - Failure Handling
   - Stop Condition
+- Trong `developer_instructions` của mọi Codex agent phải có rule rõ ràng:
+  - `Treat this TOML developer_instructions as your runtime instructions; do not read agents/**/*.md to learn your own role unless the task is explicitly about auditing, editing, or syncing agent definitions.`
 - `nickname_candidates` nếu dùng phải là list không rỗng, unique, chỉ dùng ASCII letters, digits, spaces, hyphens và underscores.
 
 ### Reasoning Effort Mapping For Codex
@@ -200,7 +212,8 @@ developer_instructions = """
 ...
 
 ## Rules
-...
+- Treat this TOML developer_instructions as your runtime instructions; do not read agents/**/*.md to learn your own role unless the task is explicitly about auditing, editing, or syncing agent definitions.
+- ...
 
 ## Do Not
 ...
@@ -238,6 +251,7 @@ Spawn these Codex subagents in parallel, wait for all of them, then consolidate 
 - Reviewer chỉ spawn sau worker tương ứng.
 - Barrier steps such as A04 test execution, A01 knowledge index update, and R02 final gate do not run in parallel with upstream writers.
 - Nếu có conflict lock/write scope, chạy tuần tự.
+- Dispatch target phải là Codex `name` từ registry/TOML, không phải Agent ID đơn lẻ và không phải Markdown file path.
 
 ### CSV Fan-out Rule
 
@@ -521,6 +535,12 @@ Every runnable custom agent file must include:
 ## Stop Condition
 ```
 
+### Source Of Truth Boundary
+
+- Files under `agents/**/*.md` are cross-platform agent specs and documentation for generation, review, and sync.
+- For Codex output, `agents/**/*.md` is not the runnable agent config. Runtime behavior must come from `.codex/agents/*.toml` and its `developer_instructions`.
+- A normal Codex dispatch must not tell an agent to read its own Markdown spec to learn its role. Dispatch by Codex `name`; read Markdown specs only when auditing, editing, or syncing agent definitions.
+
 ### Worker Handoff Contract
 
 ```md
@@ -681,6 +701,24 @@ Worker -> Reviewer REJECT -> W01 increments iteration -> same Worker fixes -> Re
 ```
 
 `MAX_WORKER_REVIEW_ITERATIONS = 2`. After that W01 calls F01 or marks BLOCKED.
+
+### Codex Dispatch Contract
+
+When target platform is Codex, W01 must dispatch by the `Codex Name` from `agents/agent-registry.md`, which must match `name` in `.codex/agents/<agent>.toml`.
+
+Use this form:
+
+```text
+Spawn Codex subagent `<codex_agent_name>` with this run request:
+- Task ID:
+- Stage:
+- Skill Bundle:
+- Required task inputs:
+- Expected artifacts:
+- Review profile or handoff target:
+```
+
+For Codex runtime dispatch, do not use a Markdown agent path as the role source or target. The Markdown agent file can be read for agent-definition maintenance only; it is not a required input for normal worker/reviewer execution.
 
 ### Workflow Profiles
 
@@ -851,6 +889,10 @@ Only W01 writes:
 
 Workers and reviewers write only their `runs/<run-id>/` artifacts.
 
+## Codex Dispatch Discipline
+
+For Codex output, W01 dispatches runnable agents by Codex custom-agent `name` from `.codex/agents/*.toml`. `agents/agent-registry.md` remains the routing and permission index, but W01 must not turn `agents/**/*.md` into runtime instructions or route through a generic agent with Markdown as the role source.
+
 ## Debate
 
 Debate is policy-driven, not a standing custom agent. W01 may request A02 isolated proposals or R02 comparison, then W01 records the decision.
@@ -923,6 +965,10 @@ Debate là workflow policy do W01 quản lý, không phải standing custom agen
 ## 16. Stop And Report
 
 Khi vượt max iteration, thiếu business input, conflict quyền hoặc debate không kết luận, W01 phải đánh dấu `BLOCKED`, tạo `blocked-report.md` và yêu cầu user quyết định.
+
+## 17. Native Agent Config Source Of Truth
+
+Khi target platform có native agent config, runtime behavior phải đến từ native config đó. Với Codex, `.codex/agents/*.toml` và `developer_instructions` là nguồn chạy agent; `agents/agent-registry.md` chỉ là routing index và `agents/**/*.md` chỉ là spec/sync artifact.
 # VIII. Output Requirements For V3 Generation
 
 When this prompt is used to generate the workflow harness, output:
@@ -1004,3 +1050,4 @@ The generated V3 system must prove:
 - Repair, failure, debate, restart, and maintenance loops have explicit budgets.
 - Shared state has a single writer: W01.
 - Codex `max_depth = 1` is respected.
+- Codex runtime dispatch uses `.codex/agents/*.toml` via `Codex Name`; it does not reconstruct agent behavior from `agents/**/*.md`.

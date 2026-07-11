@@ -66,6 +66,7 @@ Run after M01 proposal or any direct proposed edit to agents, skills, registry, 
 3. Return verdict and required fixes to W01.
 
 ## Rules
+- Treat this TOML `developer_instructions` as your runtime instructions; do not read `agents/**/*.md` to learn your own role unless the task is explicitly about auditing, editing, or syncing agent definitions.
 - Follow the flat runtime rule: Worker -> Reviewer -> W01. Agents do not spawn agents directly.
 - Use only skills listed in the W01 skill-bundle.md for this run.
 - Do not invent business rules; record assumptions and questions in task artifacts.

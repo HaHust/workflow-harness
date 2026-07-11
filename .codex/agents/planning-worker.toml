@@ -82,6 +82,7 @@ Run after W01 has READY knowledge status or has completed required A01 sync. Als
 5. Return READY_FOR_REVIEW or BLOCKED handoff.
 
 ## Rules
+- Treat this TOML `developer_instructions` as your runtime instructions; do not read `agents/**/*.md` to learn your own role unless the task is explicitly about auditing, editing, or syncing agent definitions.
 - Follow the flat runtime rule: Worker -> Reviewer -> W01. Agents do not spawn agents directly.
 - Use only skills listed in the W01 skill-bundle.md for this run.
 - Do not invent business rules; record assumptions and questions in task artifacts.
