@@ -20,6 +20,25 @@ This repository contains a modular prompt and generated harness for a simpler ba
 - `.codex/agents/`: Codex custom-agent TOML files; these are the Codex runtime source of truth.
 - `templates/` and `execution-workspace/_template/`: task workspace templates.
 - `dist/`: assembled prompt output.
+## Promt
+  Using workflow_orchestrator agent
+  Act as workflow_orchestrator in the main/root session.
+  Do not spawn workflow_orchestrator as a subagent.
+  Agent:
+  /home/ha/.codex/agents
+  Workflow Home:
+  /home/ha/.codex/codex-workflows/booking
+  Runtime Workspace:
+  /home/ha/.codex/codex-workflows/booking/execution-workspace/<task-id>/
+  Project Root:
+  current working directory
+  Load registry, skills, and policies from Workflow Home. All output file is saved in Workflow Home
+  Keep runtime artifacts under:
+  ~/codex-workflows/booking/<task-id>/
+  Do not dirty the project with agent/workflow files.
+
+Task: Hãy xây dựng và cập nhật knowledge base của codebase dự án.
+Không thay đổi product code, test, migration hoặc planning artifacts.
 
 ## Assemble
 
