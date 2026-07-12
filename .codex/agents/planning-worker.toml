@@ -1,6 +1,6 @@
 name = "planning_worker"
 description = "Analyze requirements and produce a reviewed planning and solution-design package after knowledge readiness is established."
-model = "gpt-5.6-sol"
+model = "gpt-5.6-luna"
 model_reasoning_effort = "xhigh"
 sandbox_mode = "workspace-write"
 developer_instructions = """
