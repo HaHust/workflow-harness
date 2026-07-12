@@ -141,8 +141,9 @@ Map từ prompt chung sang Codex:
 
 Rule bắt buộc khi sinh Codex agents:
 
-- Chỉ `.codex/agents/knowledge-maintainer.toml` và `.codex/agents/planning-worker.toml` dùng `model_reasoning_effort = "xhigh"`.
-- Tất cả custom agent TOML còn lại dùng `model_reasoning_effort = "low"`, bao gồm W01, implementation, test, verification, reviewers, risk reviewer, failure analyzer, workflow optimizer, và agent evolution reviewer.
+- `.codex/agents/workflow-orchestrator.toml` và `.codex/agents/planning-worker.toml` dùng `model = "gpt-5.6-sol"` với `model_reasoning_effort = "xhigh"`.
+- `.codex/agents/knowledge-maintainer.toml` dùng `model = "gpt-5.6-luna"` với `model_reasoning_effort = "xhigh"` vì phải tổng hợp và đồng bộ knowledge từ nhiều nguồn bằng chứng.
+- Tất cả custom agent TOML còn lại dùng `model = "gpt-5.6-luna"` với `model_reasoning_effort = "low"`, bao gồm implementation, test, verification, quality reviewer, risk reviewer, failure analyzer, workflow optimizer, và agent evolution reviewer.
 - Không tự nâng reasoning effort của agent khác để né thiết kế workflow. Nếu một task cần suy luận sâu hơn, W01 phải chia nhỏ task, tăng evidence, hoặc yêu cầu user phê duyệt thay đổi config.
 - Nếu không pin `model`, Codex sẽ kế thừa/chọn model theo session. Chỉ pin `model` khi user yêu cầu hoặc workflow có lý do rõ.
 
@@ -203,6 +204,9 @@ developer_instructions = """
 
 ## Write Scope
 ...
+
+## Database Execution Guardrail
+For database-related agents, allow design/edit/review of migration and SQL files but forbid executing migrations or commands with direct or indirect ALTER, DROP, TRUNCATE, DELETE, or INSERT effects. Include raw SQL, DB clients, wrappers, framework/ORM CLIs, schema push/sync, seeders, application startup, and tests. Use NOT_EXECUTED_POLICY or BLOCKED with DB_MUTATION_EXECUTION_FORBIDDEN.
 
 ## Parallel Safety
 ...
@@ -272,9 +276,10 @@ Trước khi kết thúc generation cho target Codex, kiểm tra:
 - [ ] Có `.codex/agents/*.toml` cho từng runnable custom agent.
 - [ ] Mỗi TOML có `name`, `description`, `developer_instructions`.
 - [ ] `model_reasoning_effort` dùng đúng giá trị Codex: `minimal`, `low`, `medium`, `high`, `xhigh`.
-- [ ] Chỉ knowledge-maintainer và planning-worker dùng `xhigh`; mọi Codex custom agent khác dùng `low`.
+- [ ] Workflow-orchestrator và planning-worker dùng `model = "gpt-5.6-sol"` với `xhigh`; knowledge-maintainer dùng `model = "gpt-5.6-luna"` với `xhigh`; mọi Codex custom agent khác dùng `model = "gpt-5.6-luna"` với `low`.
 - [ ] Reviewer/scanner không ghi file dùng `sandbox_mode = "read-only"`; reviewer/scanner ghi artifact dùng `workspace-write` với write scope hẹp.
 - [ ] Writer dùng `sandbox_mode = "workspace-write"` và có write scope rõ.
+- [ ] Mọi agent liên quan DB có `Database Execution Guardrail`; không agent nào được thực thi migration hoặc lệnh gây `ALTER`, `DROP`, `TRUNCATE`, `DELETE`, hay `INSERT` trực tiếp/gián tiếp.
 - [ ] Không có agent mồ côi trong `agents/agent-registry.md`.
 - [ ] Registry map được Agent ID sang Codex `name` và TOML file.
 - [ ] Workflow Orchestrator có prompt invocation yêu cầu spawn song song khi an toàn.
@@ -503,6 +508,7 @@ execution-workspace/<TYPE>-YYYYMMDD-short-name/
     parallel-groups.md
     permission-audit.md
     lock-conflict.md
+    workflow-selection.md
   debate/<debate-id>/
   history/
 ```
@@ -543,6 +549,7 @@ Every runnable custom agent file must include:
 ## Model Config
 ## Permissions
 ## Write Scope
+## Database Execution Guardrail (required for database-related agents)
 ## Parallel Safety
 ## Process
 ## Rules
@@ -554,6 +561,8 @@ Every runnable custom agent file must include:
 ## Failure Handling
 ## Stop Condition
 ```
+
+For every database-related agent, `Database Execution Guardrail` must explicitly allow static design/edit/review work while forbidding execution of migrations and direct or indirect `ALTER`, `DROP`, `TRUNCATE`, `DELETE`, or `INSERT` effects. Required policy outcomes are `NOT_EXECUTED_POLICY` and `BLOCKED: DB_MUTATION_EXECUTION_FORBIDDEN` when execution is necessary.
 
 ### Source Of Truth Boundary
 
@@ -929,12 +938,16 @@ W01 must create `runs/<run-id>/skill-bundle.md` for every agent run:
 
 ## Bundle Identity
 - Bundle Version: 2
+- Schema Revision: 2.1
 - Workflow Home:
 - Skill Registry:
 - Task ID:
 - Run ID:
 - Stage:
 - Host Agent ID:
+- Host Agent Name:
+- Iteration: 1
+- Required Review Profile:
 
 ## Skill Load Protocol
 - Resolve each selected skill to a concrete file.
@@ -955,6 +968,9 @@ W01 must create `runs/<run-id>/skill-bundle.md` for every agent run:
 ## Expected Outputs
 
 ## Write Scope And Locks
+- Write Scope:
+- Required Locks:
+- Forbidden Paths:
 
 ## Reviewer Contract
 
@@ -963,7 +979,9 @@ W01 must create `runs/<run-id>/skill-bundle.md` for every agent run:
 
 W01 must validate each skill against `skills/skill-registry.md`, write its concrete path into the bundle, and include the same bundle path in the child run request. The child must read all required skill files in load order and record `Skill Files Read`; a list of skill names alone is not a loaded bundle.
 
-When `scripts/validate-skill-bundle.sh` is available, W01 runs it before dispatch and proceeds only after `SKILL_BUNDLE_VALID`. Missing files, non-canonical paths, forbidden/selected overlap, or invalid registry mappings block dispatch.
+Before every new or re-dispatched child run, W01 must run `scripts/validate-skill-bundle.sh <bundle-path> <workflow-home>` and proceed only after detached `SKILL_BUNDLE_VALID` evidence. The validator is mandatory and fail-closed. It validates the immutable Bundle Version 2 / Schema Revision 2.1 bundle, canonical task root, host/registry mapping, concrete skills, required sections, reviewer/iteration/lock declarations, and write-scope roots. It never writes `Bundle Validation Status` into the bundle; W01 records a digest-bound `BUNDLE_VALIDATED` event in `runtime/runtime-log.jsonl`.
+
+On resume, W01 first inventories already-dispatched runs and reconciles their persisted evidence. Legacy bundles are classified as `LEGACY_SCHEMA_FAILURE` or `INTERRUPTED_RUN` metadata and are never retroactively validated or mutated. Any continuation receives a new Run ID and a fresh canonical bundle that must pass the validator.
 
 ## Shared State Writer Rule
 
@@ -975,6 +993,8 @@ Only W01 writes:
 - `agent-dispatch-log.md`
 - `parallel-groups.md`
 - `permission-audit.md`
+
+Every transition is idempotent and uses a stable `dispatch_key`. A successful child or blocked child receives one terminal child event, then `HANDOFF_RECONCILED` and `STATE_RECONCILED`. An external dispatch failure receives `DISPATCH_FAILED`, an explicit `handoff: NONE` projection, `HANDOFF_RECONCILED`, and `STATE_RECONCILED`; the next dispatch is forbidden until these records exist. Duplicate event IDs with identical payloads are no-ops; conflicting payloads block with `RUNTIME_EVENT_CONFLICT`.
 
 Workers and reviewers write only their `runs/<run-id>/` artifacts.
 
@@ -1058,6 +1078,10 @@ Khi vượt max iteration, thiếu business input, conflict quyền hoặc debat
 ## 17. Native Agent Config Source Of Truth
 
 Khi target platform có native agent config, runtime behavior phải đến từ native config đó. Với Codex, `.codex/agents/*.toml` và `developer_instructions` là nguồn chạy agent; `agents/agent-registry.md` chỉ là routing index và `agents/**/*.md` chỉ là spec/sync artifact.
+
+## 18. Database Execution Freeze
+
+Agent được đọc schema, thiết kế thay đổi DB, và tạo/chỉnh/review migration hoặc SQL file, nhưng không được thực thi migration hay câu lệnh có hiệu lực `ALTER`, `DROP`, `TRUNCATE`, `DELETE`, hoặc `INSERT`. Lệnh cấm bao gồm raw SQL, DB client, shell/script wrapper, framework/ORM CLI, schema push/sync, seeder, application startup, test command, hoặc bất kỳ lệnh gián tiếp nào có thể gây các mutation trên. Nếu không chứng minh được lệnh là read-only thì không chạy; ghi `NOT_EXECUTED_POLICY`. Nếu execution là bắt buộc để hoàn thành task, trả `BLOCKED` với `DB_MUTATION_EXECUTION_FORBIDDEN` về W01/user. Skill bundle, test scope hoặc W01 approval không được override guardrail này.
 # VIII. Output Requirements For V3 Generation
 
 When this prompt is used to generate the workflow harness, output:
@@ -1069,7 +1093,7 @@ When this prompt is used to generate the workflow harness, output:
 5. `workflow/runtime-policies/*.md`.
 6. `.codex/config.toml` with `max_depth = 1` and V3 custom agent TOML files.
 7. Task templates under `templates/` and `execution-workspace/_template/`.
-8. Read-only `scripts/validate-skill-bundle.sh` dispatch gate.
+8. Mandatory fail-closed `scripts/validate-skill-bundle.sh` dispatch gate with canonical v2.1 and detached validation evidence.
 9. README instructions for the flat Worker -> Reviewer -> W01 runtime.
 10. Assembled prompt under `dist/` using the Codex manifest.
 

@@ -94,6 +94,7 @@ execution-workspace/<TYPE>-YYYYMMDD-short-name/
     parallel-groups.md
     permission-audit.md
     lock-conflict.md
+    workflow-selection.md
   debate/<debate-id>/
   history/
 ```

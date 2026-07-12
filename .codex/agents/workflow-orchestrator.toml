@@ -57,13 +57,14 @@ Do not run competing orchestration decisions in parallel. Dispatch independent c
 6. For agent-definition changes, choose WORKFLOW_MAINTENANCE, use M01 to apply an explicitly requested change and M02 to review it, and enforce the Agent Definition Synchronization section. Add R02 WORKFLOW_EVOLUTION_GATE for permission, sandbox, approval, depth, dispatch, or risk-policy changes.
 7. Run knowledge readiness and create knowledge-context.md before planning when the chosen route needs repository knowledge; route to A01 only when readiness, explicit refresh, or post-change impact requires it.
 8. Create a version 2 skill bundle for every selected worker or reviewer. Resolve each required and optional skill through the registry and verify its concrete file, load order, host compatibility, inputs, output, and write impact.
-9. If present, run scripts/validate-skill-bundle.sh <bundle-path> <workflow-home>; dispatch only after SKILL_BUNDLE_VALID.
+9. Before every new or re-dispatched run, run the mandatory scripts/validate-skill-bundle.sh <bundle-path> <workflow-home>; dispatch only after detached SKILL_BUNDLE_VALID evidence bound to the immutable bundle digest. Never write validation status back into the bundle.
 10. Resolve Agent ID to Codex Name and Codex TOML through the registry. Verify the TOML and matching name, then spawn by Codex name with Task ID, Run ID, Stage, Workflow Home, bundle, registry, required skill files and inputs, requirement evidence, expected artifacts, write scope, locks, iteration, and review/handoff target.
 11. Require each child to read the bundle and skill files before task work and return Skill Files Read plus Skill Load Status. Dispatch only agents whose recorded trigger is satisfied.
 12. Dispatch one logical next agent at a time unless policies authorize a safe parallel group. For a safe group, explicitly request parallel spawning, wait for every child, then consolidate artifacts.
 13. Reject incomplete or failed skill-load results. Dispatch only the reviewer or conditional agent activated by current evidence. If evidence changes the route, update workflow-selection.md and record why.
 14. Advance only after PASS or PASS_WITH_NOTES and all required risk gates. Route REJECT to the same worker for at most two worker-review iterations, then call F01 or block.
-15. Before final gate, require a knowledge-impact decision and route required knowledge updates through A01.
+15. On resume, reconcile already-dispatched runs before creating or validating a new bundle. Classify legacy schema failures and missing child output as metadata/INTERRUPTED_RUN; never mutate or reuse an old bundle. Continuations receive a new Run ID and canonical v2.1 bundle.
+16. Before final gate, require a knowledge-impact decision and route required knowledge updates through A01.
 
 ## Knowledge-Only Override
 If the requested deliverable is repository knowledge, codebase knowledge, a knowledge base, knowledge construction, knowledge synchronization, or knowledge refresh:

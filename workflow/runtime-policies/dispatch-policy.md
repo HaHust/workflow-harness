@@ -22,10 +22,18 @@ For Codex runtime:
 - In the run request, require the child to read the skill bundle and every concrete required skill file before task work.
 - A skill name without a resolved readable file is not loaded and must not be used.
 - Require `Skill Files Read` and `Skill Load Status` in the child result, handoff, or review artifact.
-- Before dispatch, run `scripts/validate-skill-bundle.sh <bundle-path> <workflow-home>` when the validator is present; dispatch only on `SKILL_BUNDLE_VALID`.
+- Before every new or re-dispatched run, run `scripts/validate-skill-bundle.sh <bundle-path> <workflow-home>`; absence, failure, or malformed output blocks dispatch with the exact validator code. Dispatch only after detached `SKILL_BUNDLE_VALID` evidence bound to the immutable bundle digest.
+- A prior dispatched legacy bundle is reconciled first on resume. It is never mutated, reused, or retroactively required to pass the new schema. Continuation uses a new canonical bundle and Run ID.
 - Reject the run as `BLOCKED` with `SKILL_NOT_LOADED` when required skill evidence is missing.
 
 No dispatched agent may dispatch another agent. With Codex `max_depth = 1`, every logical handoff returns to W01 for the next flat dispatch.
+
+## Runtime Event Contract
+
+- `runtime/runtime-log.jsonl` is UTF-8 JSONL; each line is `booking.runtime.event/v1` with unique `event_id`, `dispatch_key`, monotonic `sequence`, timestamp, task/run/attempt, event type, status, and optional measurement fields.
+- Pre-dispatch order is `BUNDLE_VALIDATED`, permission/lock/parallel records, `DISPATCH_COMMITTED`.
+- Child completion order is one of `CHILD_RETURNED`, `CHILD_BLOCKED`, `CHILD_INTERRUPTED`; external failure is `DISPATCH_FAILED` with `handoff: NONE`; every terminal path then emits `HANDOFF_RECONCILED` and `STATE_RECONCILED` before another `BUNDLE_VALIDATED`.
+- Reconciliation is idempotent by event ID and payload. Duplicate same-payload events are no-ops; conflicting duplicates block with `RUNTIME_EVENT_CONFLICT`.
 
 ## Database Execution Freeze
 

@@ -2,6 +2,7 @@
 
 ## Bundle Identity
 - Bundle Version: 2
+- Schema Revision: 2.1
 - Workflow Home:
 - Skill Registry: <workflow-home>/skills/skill-registry.md
 - Task ID:
@@ -9,6 +10,8 @@
 - Stage:
 - Host Agent ID:
 - Host Agent Name:
+- Iteration: 1
+- Required Review Profile:
 
 ## Skill Load Protocol
 1. Resolve every skill file against `Workflow Home`; W01 must write a concrete path, not only a skill name.
@@ -52,4 +55,5 @@
 - Skill Files Read: agent must fill this in its run artifact.
 - Registry Validation: PASS | BLOCKED
 - Bundle Validation Command: <workflow-home>/scripts/validate-skill-bundle.sh <bundle-path> <workflow-home>
-- Bundle Validation Status: PASS | BLOCKED
+- Bundle Validation Status: PENDING
+- Detached Validation Evidence: runtime/runtime-log.jsonl event `BUNDLE_VALIDATED`; this bundle is immutable after validation.

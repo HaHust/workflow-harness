@@ -29,7 +29,6 @@ Run after M01 proposal or any direct proposed edit to agents, skills, registry, 
 - artifact-validation
 - risk-classification
 - backward-compatibility
-- final-gate-review
 
 ## Model Config
 - Model: `gpt-5.6-luna`

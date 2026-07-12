@@ -22,7 +22,7 @@ Run skill-bundle.md; Workflow Home and skill registry; all concrete required rev
 agent-evolution-review.md, agent-change-verdict.md, and runs/<run-id>/review.md plus handoff.md.
 
 ## Allowed Skills
-artifact-validation, risk-classification, backward-compatibility, and final-gate-review.
+artifact-validation, risk-classification, and backward-compatibility.
 
 ## Model Config
 Reasoning effort is LOW. Inherit the active session model and temperature; keep context narrow and evidence-backed.

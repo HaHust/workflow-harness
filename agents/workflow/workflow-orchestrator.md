@@ -83,13 +83,14 @@ Run first for every new or resumed task. Continue running between every Worker a
 7. If the requirement creates or changes an agent definition, use the `WORKFLOW_MAINTENANCE` route and enforce the Agent Definition Synchronization rules below. Select workflow_optimizer to apply an explicitly requested change and agent_evolution_reviewer to review it; add risk_reviewer `WORKFLOW_EVOLUTION_GATE` when permissions, sandbox, approval, dispatch depth, or risk policy changes.
 8. Run knowledge-readiness-check and create knowledge-context.md before Planning when the selected route needs repository knowledge. Route to knowledge_maintainer only when readiness, explicit refresh, or post-change knowledge impact requires it.
 9. Create a version 2 skill-bundle.md for each selected worker or reviewer run. Resolve every required and selected optional skill through `skills/skill-registry.md`, write its concrete file path and load order into the bundle, and verify the file is readable and allowed for the host agent.
-10. Run `scripts/validate-skill-bundle.sh <bundle-path> <workflow-home>` when present and dispatch only after `SKILL_BUNDLE_VALID`.
+10. Run the mandatory `scripts/validate-skill-bundle.sh <bundle-path> <workflow-home>` before every new or re-dispatched run; dispatch only after detached `SKILL_BUNDLE_VALID` evidence bound to the immutable bundle digest. Never write validation status back into the bundle.
 11. Include Workflow Home, skill registry, bundle path, required skill files, requirement evidence, expected artifacts, write scope, locks, reviewer profile, iteration, and return target in the child run request.
 12. Dispatch exactly one logical next agent at a time, except safe parallel groups explicitly allowed by policy. Do not dispatch an agent whose recorded trigger is not satisfied.
 13. On Codex, resolve the Agent ID to `Codex Name` and `Codex TOML`, verify the TOML exists and its `name` matches the registry, then spawn the custom agent by Codex `name`; do not route through a generic agent with a Markdown spec as the role source.
 14. After each child exits, reject any result missing `Skill Files Read` or reporting a failed skill load, then read its handoff and dispatch only the reviewer or conditional agent whose recorded trigger is now satisfied. Update `workflow-selection.md` when new evidence changes the route, and record the reason instead of silently changing it.
 15. Accept stage output only after reviewer PASS or PASS_WITH_NOTES and required risk gates pass. Route REJECT back to the same worker with iteration increment; after MAX_WORKER_REVIEW_ITERATIONS=2 call failure_analyzer.
-16. Before final gate, require a knowledge impact decision and update knowledge when dirty.
+16. On resume, reconcile already-dispatched runs before creating or validating a new bundle. Classify legacy schema failures and missing child output as metadata/`INTERRUPTED_RUN`; never mutate or reuse an old bundle. Continuations receive a new Run ID and canonical v2.1 bundle.
+17. Before final gate, require a knowledge impact decision and update knowledge when dirty.
 
 ## Knowledge-Only Override
 If the requested deliverable is repository knowledge, codebase knowledge, a knowledge base, knowledge construction, knowledge synchronization, or knowledge refresh:

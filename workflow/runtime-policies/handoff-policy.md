@@ -42,6 +42,10 @@
 
 Reviewer handoffs never name a next worker as dispatch target.
 
+## Runtime Reconciliation
+
+Every handoff has a stable `dispatch_key`. A child return, block, interruption, or external `DISPATCH_FAILED` must be projected into the handoff log and followed by `HANDOFF_RECONCILED` and `STATE_RECONCILED`. For `DISPATCH_FAILED`, record explicit `Logical Handoff: NONE`, preserve the bundle as immutable, and permit a next dispatch only after reconciliation completes.
+
 ## Specialist Routing Handoff
 - Task ID:
 - Stage:
